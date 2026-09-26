@@ -1,0 +1,382 @@
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import confetti from 'canvas-confetti';
+import {
+  CheckCircle2,
+  ShieldCheck,
+  CreditCard,
+  Truck,
+  ArrowRight,
+  Send,
+  Sparkles,
+  ShoppingBag
+} from 'lucide-react';
+import { useStore } from '../context/StoreContext';
+import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
+import { formatPrice } from '../utils/formatters';
+
+export default function Checkout() {
+  const { cart, cartSubtotal, discountAmount, shippingFee, grandTotal, appliedPromo, createOrder } = useStore();
+  const { user } = useAuth();
+  const { t } = useLanguage();
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
+    fullName: user?.name || '',
+    phone: user?.phone || '+998 ',
+    address: '',
+    note: '',
+    paymentMethod: 'click' // 'click' | 'payme' | 'cash'
+  });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [createdOrder, setCreatedOrder] = useState(null);
+
+  if (cart.length === 0 && !createdOrder) {
+    return (
+      <div className="max-w-md mx-auto px-4 py-20 text-center">
+        <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-4">
+          Savatingiz bo'sh
+        </h2>
+        <Link
+          to="/shop"
+          className="px-6 py-3 rounded-2xl bg-indigo-600 text-white font-semibold inline-block"
+        >
+          Katalogga o'tish
+        </Link>
+      </div>
+    );
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.fullName.trim() || !formData.phone.trim() || !formData.address.trim()) {
+      alert("Iltimos, ism, telefon va manzil maydonlarini to'ldiring!");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const order = await createOrder({
+        customerName: formData.fullName,
+        phone: formData.phone,
+        address: formData.address,
+        paymentMethod: formData.paymentMethod,
+        note: formData.note
+      });
+
+      // Trigger Celebration Confetti!
+      confetti({
+        particleCount: 120,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+
+      setCreatedOrder(order);
+    } catch (err) {
+      console.error(err);
+      alert("Buyurtma yuborishda xatolik yuz berdi");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Order Success Screen
+  if (createdOrder) {
+    return (
+      <div className="max-w-2xl mx-auto px-4 py-16 text-center animate-fadeIn">
+        <div className="w-20 h-20 rounded-3xl bg-emerald-500/20 text-emerald-500 flex items-center justify-center mx-auto mb-6 shadow-xl shadow-emerald-500/10">
+          <CheckCircle2 className="w-12 h-12" />
+        </div>
+
+        <h1 className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 mb-2">
+          {t('checkout.successTitle')}
+        </h1>
+        <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-lg mx-auto mb-6">
+          {t('checkout.successSub', { orderId: createdOrder.id })}
+        </p>
+
+        {/* Order Details Card */}
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 text-left mb-8 shadow-sm space-y-4 text-xs sm:text-sm">
+          <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+            <span className="text-slate-400">Buyurtma raqami:</span>
+            <span className="font-bold text-slate-900 dark:text-slate-100">
+              #{createdOrder.id}
+            </span>
+          </div>
+          <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+            <span className="text-slate-400">Mijoz:</span>
+            <span className="font-semibold text-slate-800 dark:text-slate-200">
+              {createdOrder.customerName} ({createdOrder.phone})
+            </span>
+          </div>
+          <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+            <span className="text-slate-400">Yetkazish manzili:</span>
+            <span className="font-semibold text-slate-800 dark:text-slate-200">
+              {createdOrder.address}
+            </span>
+          </div>
+          <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+            <span className="text-slate-400">To'lov turi:</span>
+            <span className="font-semibold uppercase text-indigo-600">
+              {createdOrder.paymentMethod}
+            </span>
+          </div>
+          <div className="flex justify-between items-baseline pt-2">
+            <span className="font-bold text-slate-900 dark:text-slate-100">Jami to'lov:</span>
+            <span className="text-xl font-black text-indigo-600 dark:text-indigo-400">
+              {formatPrice(createdOrder.totalAmount)}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Link
+            to="/orders"
+            className="px-6 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-xl shadow-indigo-600/30 transition"
+          >
+            {t('checkout.viewOrders')}
+          </Link>
+          <Link
+            to="/shop"
+            className="px-6 py-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-sm transition"
+          >
+            {t('checkout.continueShopping')}
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-slate-100 mb-8">
+        {t('checkout.title')}
+      </h1>
+
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+        
+        {/* Left: Customer & Delivery Details Form (7 cols) */}
+        <div className="lg:col-span-7 space-y-6">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-5">
+            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+              <Truck className="w-5 h-5 text-indigo-600" />
+              {t('checkout.contactInfo')}
+            </h2>
+
+            {/* Name */}
+            <div>
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">
+                {t('checkout.fullName')} *
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.fullName}
+                onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                placeholder="masalan: Azizbek Karimov"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+
+            {/* Phone */}
+            <div>
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">
+                {t('checkout.phone')} *
+              </label>
+              <input
+                type="tel"
+                required
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                placeholder="+998 90 123 45 67"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono"
+              />
+            </div>
+
+            {/* Address */}
+            <div>
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">
+                {t('checkout.deliveryAddress')} *
+              </label>
+              <textarea
+                required
+                rows={3}
+                value={formData.address}
+                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                placeholder={t('checkout.addressPlaceholder')}
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+              />
+            </div>
+
+            {/* Note */}
+            <div>
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">
+                {t('checkout.orderNote')}
+              </label>
+              <input
+                type="text"
+                value={formData.note}
+                onChange={(e) => setFormData({ ...formData, note: e.target.value })}
+                placeholder="masalan: Qulay yetkazish vaqti yoki dom kodi"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+          </div>
+
+          {/* Payment Method */}
+          <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-4">
+            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+              <CreditCard className="w-5 h-5 text-indigo-600" />
+              {t('checkout.paymentMethod')}
+            </h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {/* Click */}
+              <label
+                className={`p-4 rounded-2xl border cursor-pointer flex flex-col justify-between transition-all ${
+                  formData.paymentMethod === 'click'
+                    ? 'border-indigo-600 bg-indigo-50/60 dark:bg-indigo-950/40 ring-2 ring-indigo-600/20'
+                    : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="payment"
+                  value="click"
+                  checked={formData.paymentMethod === 'click'}
+                  onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
+                  className="sr-only"
+                />
+                <span className="font-black text-sm text-slate-900 dark:text-slate-100">CLICK</span>
+                <span className="text-xs text-slate-400 mt-2">Onlayn to'lov</span>
+              </label>
+
+              {/* Payme */}
+              <label
+                className={`p-4 rounded-2xl border cursor-pointer flex flex-col justify-between transition-all ${
+                  formData.paymentMethod === 'payme'
+                    ? 'border-indigo-600 bg-indigo-50/60 dark:bg-indigo-950/40 ring-2 ring-indigo-600/20'
+                    : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="payment"
+                  value="payme"
+                  checked={formData.paymentMethod === 'payme'}
+                  onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
+                  className="sr-only"
+                />
+                <span className="font-black text-sm text-emerald-500">PAYME</span>
+                <span className="text-xs text-slate-400 mt-2">Onlayn to'lov</span>
+              </label>
+
+              {/* Cash */}
+              <label
+                className={`p-4 rounded-2xl border cursor-pointer flex flex-col justify-between transition-all ${
+                  formData.paymentMethod === 'cash'
+                    ? 'border-indigo-600 bg-indigo-50/60 dark:bg-indigo-950/40 ring-2 ring-indigo-600/20'
+                    : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="payment"
+                  value="cash"
+                  checked={formData.paymentMethod === 'cash'}
+                  onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
+                  className="sr-only"
+                />
+                <span className="font-black text-sm text-slate-900 dark:text-slate-100">NAQD / KARTA</span>
+                <span className="text-xs text-slate-400 mt-2">Qabul qilganda</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        {/* Right: Order Review & Telegram Notification Notice (5 cols) */}
+        <div className="lg:col-span-5 space-y-6">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+              {t('cart.orderSummary')}
+            </h2>
+
+            {/* Items summary */}
+            <div className="max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800 pr-1">
+              {cart.map((item) => (
+                <div key={item.product.id} className="py-3 flex items-center justify-between text-xs sm:text-sm">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={item.product.image}
+                      alt=""
+                      className="w-10 h-10 object-cover rounded-lg bg-slate-100 shrink-0"
+                    />
+                    <div>
+                      <p className="font-bold text-slate-800 dark:text-slate-200 line-clamp-1">
+                        {item.product.name}
+                      </p>
+                      <p className="text-slate-400 text-xs">x {item.quantity} dona</p>
+                    </div>
+                  </div>
+                  <span className="font-bold text-slate-900 dark:text-slate-100 shrink-0">
+                    {formatPrice((item.product.discountPrice || item.product.price) * item.quantity)}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {/* Calculations */}
+            <div className="space-y-2.5 pt-4 border-t border-slate-100 dark:border-slate-800 text-xs sm:text-sm">
+              <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                <span>{t('cart.subtotal')}</span>
+                <span className="font-semibold text-slate-900 dark:text-slate-100">{formatPrice(cartSubtotal)}</span>
+              </div>
+              {discountAmount > 0 && (
+                <div className="flex justify-between text-emerald-600 font-semibold">
+                  <span>{t('cart.discount')} ({appliedPromo?.code})</span>
+                  <span>-{formatPrice(discountAmount)}</span>
+                </div>
+              )}
+              <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                <span>{t('cart.shipping')}</span>
+                <span className="font-semibold text-slate-900 dark:text-slate-100">
+                  {shippingFee === 0 ? <span className="text-emerald-500 font-bold">{t('cart.free')}</span> : formatPrice(shippingFee)}
+                </span>
+              </div>
+              <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex justify-between items-baseline">
+                <span className="font-extrabold text-base text-slate-900 dark:text-slate-100">{t('cart.grandTotal')}</span>
+                <span className="text-2xl font-black text-indigo-600 dark:text-indigo-400">{formatPrice(grandTotal)}</span>
+              </div>
+            </div>
+
+            {/* Telegram Notice */}
+            <div className="p-4 rounded-2xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800 text-xs text-sky-800 dark:text-sky-300 flex items-start gap-2.5">
+              <Send className="w-4 h-4 text-sky-500 shrink-0 mt-0.5" />
+              <span>{t('checkout.telegramNotice')}</span>
+            </div>
+
+            {/* Place Order Button */}
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-base shadow-xl shadow-indigo-600/30 flex items-center justify-center gap-2 transition disabled:opacity-70"
+            >
+              {isSubmitting ? (
+                <span>{t('checkout.processing')}</span>
+              ) : (
+                <>
+                  <span>{t('checkout.placeOrder')}</span>
+                  <ArrowRight className="w-5 h-5" />
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  );
+}
