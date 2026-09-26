@@ -6,7 +6,8 @@ import {
   formatOrderTelegramMessage,
   DEFAULT_BOT_TOKEN,
   DEFAULT_CHAT_ID,
-  DEFAULT_BOT_USERNAME
+  DEFAULT_BOT_USERNAME,
+  DEFAULT_WEB_APP_URL
 } from '../utils/telegram';
 
 const StoreContext = createContext();
@@ -144,7 +145,7 @@ export function StoreProvider({ children }) {
       botToken: DEFAULT_BOT_TOKEN,
       chatId: DEFAULT_CHAT_ID,
       botUsername: DEFAULT_BOT_USERNAME,
-      webAppUrl: window.location.origin
+      webAppUrl: DEFAULT_WEB_APP_URL
     };
   });
 

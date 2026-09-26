@@ -7,8 +7,8 @@
 
 const BOT_TOKEN = process.env.BOT_TOKEN || '8682232515:AAE_r0XFh0SyhJ7ec3w0JItfAgJCAB8OL-4';
 const ADMIN_CHAT_ID = process.env.CHAT_ID || '7373118052';
-// Default WebApp URL (can be changed to Vercel URL when deployed)
-const WEB_APP_URL = process.env.WEB_APP_URL || 'https://moderno-uz-shop.vercel.app';
+// Default WebApp URL deployed on Vercel
+const WEB_APP_URL = process.env.WEB_APP_URL || 'https://moderno-three.vercel.app';
 
 const API_BASE = `https://api.telegram.org/bot${BOT_TOKEN}`;
 

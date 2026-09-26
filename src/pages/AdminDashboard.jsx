@@ -87,7 +87,7 @@ export default function AdminDashboard() {
   const [tgToken, setTgToken] = useState(telegramSettings.botToken || '');
   const [tgChatId, setTgChatId] = useState(telegramSettings.chatId || '');
   const [tgWebAppUrl, setTgWebAppUrl] = useState(
-    telegramSettings.webAppUrl || (typeof window !== 'undefined' ? window.location.origin : '')
+    telegramSettings.webAppUrl || 'https://moderno-three.vercel.app'
   );
   const [tgSaveStatus, setTgSaveStatus] = useState('');
 
@@ -814,7 +814,7 @@ Telegram Bot integratsiyasi muvaffaqiyatli ishlamoqda! ✅
                   type="url"
                   value={tgWebAppUrl}
                   onChange={(e) => setTgWebAppUrl(e.target.value)}
-                  placeholder="https://moderno-uz-shop.vercel.app yoki https://..."
+                  placeholder="https://moderno-three.vercel.app"
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
                 <span className="text-[11px] text-slate-400 mt-1 block">
