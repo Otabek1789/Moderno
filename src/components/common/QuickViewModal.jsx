@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { X, Star, ShoppingBag, Heart, Check, ShieldCheck, Truck, ArrowRight } from 'lucide-react';
+import { X, Star, ShoppingBag, Heart, Check, ShieldCheck, Truck, ArrowRight, Send } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { formatPrice } from '../../utils/formatters';
 
 export default function QuickViewModal({ product, onClose }) {
-  const { addToCart, toggleWishlist, isInWishlist } = useStore();
+  const { addToCart, toggleWishlist, isInWishlist, postProductToTelegram } = useStore();
   const { language, t } = useLanguage();
   const [selectedImg, setSelectedImg] = useState(product?.image || '');
   const [quantity, setQuantity] = useState(1);
@@ -182,8 +182,18 @@ export default function QuickViewModal({ product, onClose }) {
                     ? 'bg-rose-50 border-rose-200 text-rose-500 dark:bg-rose-950/40 dark:border-rose-900'
                     : 'border-slate-200 dark:border-slate-700 text-slate-500 hover:text-rose-500'
                 }`}
+                title="Sevimlilarga qo'shish"
               >
                 <Heart className={`w-5 h-5 ${inWishlist ? 'fill-current' : ''}`} />
+              </button>
+
+              {/* Telegram Post */}
+              <button
+                onClick={() => postProductToTelegram(product)}
+                className="p-3 rounded-xl border border-sky-300 dark:border-sky-800 bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400 hover:bg-sky-100 transition"
+                title="Telegram botga yuborish"
+              >
+                <Send className="w-5 h-5" />
               </button>
             </div>
 

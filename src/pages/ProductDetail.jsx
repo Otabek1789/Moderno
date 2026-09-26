@@ -11,7 +11,8 @@ import {
   ChevronRight,
   Share2,
   Zap,
-  CheckCircle2
+  CheckCircle2,
+  Send
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -21,7 +22,7 @@ import { formatPrice } from '../utils/formatters';
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { products, addToCart, toggleWishlist, isInWishlist } = useStore();
+  const { products, addToCart, toggleWishlist, isInWishlist, postProductToTelegram } = useStore();
   const { language, t } = useLanguage();
 
   const product = products.find((p) => String(p.id) === String(id));
@@ -255,8 +256,18 @@ export default function ProductDetail() {
                       ? 'bg-rose-50 border-rose-200 text-rose-500 dark:bg-rose-950/40 dark:border-rose-900'
                       : 'border-slate-200 dark:border-slate-800 text-slate-500 hover:text-rose-500'
                   }`}
+                  title="Sevimlilarga qo'shish"
                 >
                   <Heart className={`w-5 h-5 ${inWishlist ? 'fill-current' : ''}`} />
+                </button>
+
+                <button
+                  onClick={() => postProductToTelegram(product)}
+                  className="sm:w-auto px-5 py-4 rounded-2xl font-bold text-sm bg-sky-500/10 hover:bg-sky-500/20 text-sky-600 dark:text-sky-400 border border-sky-500/30 flex items-center justify-center gap-2 transition active:scale-95"
+                  title="Mahsulotni Telegram botga yuborish"
+                >
+                  <Send className="w-4 h-4" />
+                  <span className="hidden sm:inline">Telegramga</span>
                 </button>
               </div>
             </div>

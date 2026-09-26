@@ -1,6 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { initialProducts } from '../data/initialProducts';
-import { sendTelegramMessage, formatOrderTelegramMessage } from '../utils/telegram';
+import {
+  sendTelegramMessage,
+  sendTelegramProduct,
+  formatOrderTelegramMessage,
+  DEFAULT_BOT_TOKEN,
+  DEFAULT_CHAT_ID,
+  DEFAULT_BOT_USERNAME
+} from '../utils/telegram';
 
 const StoreContext = createContext();
 
@@ -27,7 +34,7 @@ const INITIAL_ORDERS = [
     totalAmount: 13941000,
     paymentMethod: "click",
     note: "Eshik oldiga kelganda qo'ng'iroq qiling",
-    status: "delivered", // pending, shipping, delivered, cancelled
+    status: "delivered",
     createdAt: new Date(Date.now() - 86400000 * 2).toISOString()
   },
   {
@@ -125,19 +132,24 @@ export function StoreProvider({ children }) {
     localStorage.setItem('shop_orders', JSON.stringify(orders));
   }, [orders]);
 
-  // 6. Telegram Settings
+  // 6. Telegram Settings pre-configured with user's Bot Token & Chat ID
   const [telegramSettings, setTelegramSettings] = useState(() => {
-    const saved = localStorage.getItem('shop_telegram_settings');
-    return saved
-      ? JSON.parse(saved)
-      : {
-          botToken: "", // Configurable in admin
-          chatId: ""
-        };
+    const saved = localStorage.getItem('shop_telegram_settings_v2');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {}
+    }
+    return {
+      botToken: DEFAULT_BOT_TOKEN,
+      chatId: DEFAULT_CHAT_ID,
+      botUsername: DEFAULT_BOT_USERNAME,
+      webAppUrl: window.location.origin
+    };
   });
 
   useEffect(() => {
-    localStorage.setItem('shop_telegram_settings', JSON.stringify(telegramSettings));
+    localStorage.setItem('shop_telegram_settings_v2', JSON.stringify(telegramSettings));
   }, [telegramSettings]);
 
   // 7. Telegram notification preview modal state
@@ -185,7 +197,6 @@ export function StoreProvider({ children }) {
 
   const deleteProduct = (id) => {
     setProducts((prev) => prev.filter((item) => item.id !== id));
-    // also remove from cart & wishlist
     setCart((prev) => prev.filter((item) => item.product.id !== id));
     setWishlist((prev) => prev.filter((item) => item.id !== id));
   };
@@ -240,10 +251,8 @@ export function StoreProvider({ children }) {
     return acc + activePrice * item.quantity;
   }, 0);
 
-  // Free shipping threshold: 500,000 UZS
   const shippingFee = cartSubtotal >= 500000 || cartSubtotal === 0 ? 0 : 35000;
 
-  // Calculate discount amount
   let discountAmount = 0;
   if (appliedPromo && cartSubtotal > 0) {
     if (appliedPromo.type === 'percent') {
@@ -255,7 +264,6 @@ export function StoreProvider({ children }) {
 
   const grandTotal = Math.max(0, cartSubtotal - discountAmount + shippingFee);
 
-  // Apply promo code
   const applyPromo = (codeStr) => {
     const clean = codeStr.trim().toUpperCase();
     const found = promoCodes.find((p) => p.code.toUpperCase() === clean);
@@ -323,10 +331,8 @@ export function StoreProvider({ children }) {
       createdAt: new Date().toISOString()
     };
 
-    // Save order to history
     setOrders((prev) => [newOrder, ...prev]);
 
-    // Send Telegram Notification
     const messageText = formatOrderTelegramMessage(newOrder);
     const res = await sendTelegramMessage(
       telegramSettings.botToken,
@@ -334,18 +340,36 @@ export function StoreProvider({ children }) {
       messageText
     );
 
-    // Show interactive preview modal if simulated or successful
     setTelegramModal({
       isOpen: true,
-      title: res.success ? "Telegram Xabarnomasi Jo'natildi!" : "Telegram Xabarnomasi Simulyatsiyasi",
+      title: res.success ? "Telegram Xabarnomasi Jo'natildi! 🚀" : "Telegram Xabarnomasi Simulyatsiyasi",
       text: messageText,
       isReal: res.success
     });
 
-    // Clear cart after checkout
     clearCart();
-
     return newOrder;
+  };
+
+  // Post single product to Telegram chat/bot
+  const postProductToTelegram = async (product) => {
+    const res = await sendTelegramProduct(
+      telegramSettings.botToken,
+      telegramSettings.chatId,
+      product,
+      telegramSettings.webAppUrl
+    );
+
+    if (res.success) {
+      alert(`"${product.name}" mahsuloti Telegram botingizga (@${telegramSettings.botUsername}) muvaffaqiyatli yuborildi! 🚀`);
+    } else {
+      setTelegramModal({
+        isOpen: true,
+        title: "Telegramga Yuborilgan Tovarlar",
+        text: `<b>${product.name}</b> rasmi va narxi Telegramga yuborilmoqda...`,
+        isReal: false
+      });
+    }
   };
 
   const updateOrderStatus = (orderId, newStatus) => {
@@ -355,7 +379,7 @@ export function StoreProvider({ children }) {
   };
 
   const updateTelegramSettings = (newSettings) => {
-    setTelegramSettings(newSettings);
+    setTelegramSettings((prev) => ({ ...prev, ...newSettings }));
   };
 
   const closeTelegramModal = () => {
@@ -365,13 +389,11 @@ export function StoreProvider({ children }) {
   return (
     <StoreContext.Provider
       value={{
-        // Products
         products,
         addProduct,
         updateProduct,
         deleteProduct,
         resetProductsToDefault,
-        // Cart
         cart,
         addToCart,
         removeFromCart,
@@ -382,23 +404,20 @@ export function StoreProvider({ children }) {
         shippingFee,
         discountAmount,
         grandTotal,
-        // Promo
         promoCodes,
         appliedPromo,
         applyPromo,
         removePromo,
         addPromoCode,
-        // Wishlist
         wishlist,
         toggleWishlist,
         isInWishlist,
         clearWishlist,
         wishlistCount,
-        // Orders
         orders,
         createOrder,
         updateOrderStatus,
-        // Telegram
+        postProductToTelegram,
         telegramSettings,
         updateTelegramSettings,
         telegramModal,

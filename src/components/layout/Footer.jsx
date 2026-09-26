@@ -28,12 +28,12 @@ export default function Footer() {
 
             <div className="flex items-center gap-3 w-full sm:w-auto">
               <a
-                href="https://t.me"
+                href="https://t.me/nekitekibeki_bot?start=website"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-sky-500 hover:bg-sky-400 text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-sky-500/25 transition active:scale-95"
               >
-                <Send className="w-4 h-4" /> Telegram Botni Ochish
+                <Send className="w-4 h-4" /> Telegram Botni Ochish (@nekitekibeki_bot)
               </a>
             </div>
           </div>

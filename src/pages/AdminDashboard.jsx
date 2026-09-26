@@ -22,7 +22,7 @@ import { useStore } from '../context/StoreContext';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { formatPrice, formatDate } from '../utils/formatters';
-import { sendTelegramMessage } from '../utils/telegram';
+import { sendTelegramMessage, setTelegramMenuButton } from '../utils/telegram';
 
 export default function AdminDashboard() {
   const {
@@ -35,6 +35,7 @@ export default function AdminDashboard() {
     updateOrderStatus,
     promoCodes,
     addPromoCode,
+    postProductToTelegram,
     telegramSettings,
     updateTelegramSettings,
     setTelegramModal
@@ -66,6 +67,7 @@ export default function AdminDashboard() {
   // Telegram settings form
   const [tgToken, setTgToken] = useState(telegramSettings.botToken || '');
   const [tgChatId, setTgChatId] = useState(telegramSettings.chatId || '');
+  const [tgWebAppUrl, setTgWebAppUrl] = useState(telegramSettings.webAppUrl || (typeof window !== 'undefined' ? window.location.origin : ''));
   const [tgSaveStatus, setTgSaveStatus] = useState('');
 
   // Promo code form
@@ -194,9 +196,27 @@ export default function AdminDashboard() {
   // Telegram settings save
   const handleSaveTelegram = (e) => {
     e.preventDefault();
-    updateTelegramSettings({ botToken: tgToken.trim(), chatId: tgChatId.trim() });
+    updateTelegramSettings({
+      botToken: tgToken.trim(),
+      chatId: tgChatId.trim(),
+      webAppUrl: tgWebAppUrl.trim()
+    });
     setTgSaveStatus(t('admin.settingsSaved'));
     setTimeout(() => setTgSaveStatus(''), 3000);
+  };
+
+  // Configure Telegram Menu Button [Open / Do'kon]
+  const handleSetMenuButton = async () => {
+    if (!tgWebAppUrl.trim()) {
+      alert("Iltimos, HTTPS Web App URL manzilini kiriting (masalan Vercel yoki HTTPS manzilingiz)");
+      return;
+    }
+    const res = await setTelegramMenuButton(tgToken, tgWebAppUrl.trim());
+    if (res.ok) {
+      alert("✅ Telegram botingizda [Do'kon] menyu tugmasi muvaffaqiyatli yoqildi!\nTelegramda botingiz ochilganda pastda [Do'kon] yoki [Open] tugmasi chiqadi!");
+    } else {
+      alert("Telegram API xabari: " + (res.description || 'URL https:// bilan bo\'lishi shart'));
+    }
   };
 
   // Send Test Telegram message
@@ -512,7 +532,14 @@ Telegram Bot integratsiyasi muvaffaqiyatli ishlamoqda! ✅
                         </span>
                       </td>
                       <td className="p-4 font-bold text-amber-500">★ {p.rating}</td>
-                      <td className="p-4 text-right space-x-2">
+                      <td className="p-4 text-right space-x-1.5">
+                        <button
+                          onClick={() => postProductToTelegram(p)}
+                          className="p-2 text-sky-500 hover:bg-sky-50 dark:hover:bg-sky-950/40 rounded-xl transition"
+                          title="Telegram botga joylash"
+                        >
+                          <Send className="w-4 h-4" />
+                        </button>
                         <button
                           onClick={() => openEditModal(p)}
                           className="p-2 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 rounded-xl transition"
@@ -585,14 +612,30 @@ Telegram Bot integratsiyasi muvaffaqiyatli ishlamoqda! ✅
                 className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
               <span className="text-[11px] text-slate-400 mt-1 block">
-                Xabarlar keladigan shaxsiy yoki guruh Chat ID si (masalan @userinfobot orqali olish mumkin)
+                Xabarlar keladigan shaxsiy yoki guruh Chat ID si: <b>7373118052</b>
               </span>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 pt-3">
+            <div>
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">
+                📱 Telegram Web App (Mini App) URL Manzili
+              </label>
+              <input
+                type="url"
+                value={tgWebAppUrl}
+                onChange={(e) => setTgWebAppUrl(e.target.value)}
+                placeholder="https://moderno-shop.vercel.app yoki https://..."
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+              <span className="text-[11px] text-slate-400 mt-1 block">
+                Telegramda pastda [Open] yoki [Do'kon] tugmasini bosganda ochiladigan Mini App manzili (HTTPS bo'lishi shart)
+              </span>
+            </div>
+
+            <div className="flex flex-wrap gap-3 pt-3">
               <button
                 type="submit"
-                className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm shadow-lg shadow-indigo-600/30 transition"
+                className="px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm shadow-lg shadow-indigo-600/30 transition"
               >
                 {t('admin.saveSettings')}
               </button>
@@ -600,16 +643,42 @@ Telegram Bot integratsiyasi muvaffaqiyatli ishlamoqda! ✅
               <button
                 type="button"
                 onClick={handleTestTelegram}
-                className="px-6 py-3 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-bold text-xs sm:text-sm shadow-lg shadow-sky-500/25 transition flex items-center justify-center gap-2"
+                className="px-5 py-3 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-bold text-xs sm:text-sm shadow-lg shadow-sky-500/25 transition flex items-center justify-center gap-2"
               >
                 <Send className="w-4 h-4" />
                 <span>{t('admin.testTelegram')}</span>
               </button>
+
+              <button
+                type="button"
+                onClick={handleSetMenuButton}
+                className="px-5 py-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs sm:text-sm shadow-lg shadow-purple-600/25 transition flex items-center justify-center gap-2"
+              >
+                <span>📱 [Open] Tugmasini Sozlash</span>
+              </button>
+
+              <a
+                href="https://t.me/nekitekibeki_bot?start=admin"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-5 py-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2"
+              >
+                <Send className="w-4 h-4 text-sky-500" />
+                <span>Botga Kirish (@nekitekibeki_bot)</span>
+              </a>
             </div>
           </form>
 
-          <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 text-xs text-amber-800 dark:text-amber-300">
-            {t('admin.simulationNotice')}
+          <div className="p-4 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-900 text-xs text-indigo-900 dark:text-indigo-300 space-y-2">
+            <p className="font-bold flex items-center gap-1.5">
+              <span>💡 Telegram Mini App qanday ishlaydi?</span>
+            </p>
+            <p className="leading-relaxed">
+              1. <b>"📱 [Open] Tugmasini Sozlash"</b> tugmasini bossangiz, Telegram API orqali botingizning pastida doimiy <b>[Do'kon]</b> yoki <b>[Open]</b> tugmasi paydo bo'ladi.
+            </p>
+            <p className="leading-relaxed">
+              2. Mijoz Telegramda botga kirib ushbu tugmani bosganda, xuddi Telegramning o'zida kichik ilova (Mini App) ochilib, do'kon to'liq ishlaydi!
+            </p>
           </div>
         </div>
       )}
