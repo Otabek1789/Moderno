@@ -1,7 +1,7 @@
 export const initialProducts = [
   {
     id: 1,
-    name: "Apple iPhone 16 Pro Max 256GB Natural Titanium",
+    name: "Apple iPhone 15 Pro Max 256GB Natural Titanium",
     category: "smartphones",
     categoryName: {
       uz: "Smartfonlar",

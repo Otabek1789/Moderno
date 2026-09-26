@@ -153,14 +153,14 @@ export default function Home() {
                 <div className="relative w-full max-w-md aspect-square rounded-3xl overflow-hidden shadow-2xl border border-white/10 group">
                   <img
                     src="https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=800&q=80"
-                    alt="iPhone 16 Pro Max"
+                    alt="iPhone 15 Pro Max"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex flex-col justify-end p-6">
                     <span className="text-xs font-bold text-amber-400 uppercase tracking-widest">
                       Hafta Yangiligi
                     </span>
-                    <h3 className="text-lg font-bold text-white">iPhone 16 Pro Max Natural Titanium</h3>
+                    <h3 className="text-lg font-bold text-white">iPhone 15 Pro Max Natural Titanium</h3>
                     <p className="text-sm font-extrabold text-indigo-400 mt-1">15 490 000 so'm</p>
                   </div>
                 </div>
@@ -377,7 +377,7 @@ export default function Home() {
               ))}
             </div>
             <p className="text-sm text-slate-600 dark:text-slate-300 italic mb-4">
-              "iPhone 16 Pro Max buyurtma berdim. Toshkent ichida atigi 3 soatda bepul yetkazib berishdi. Hujjatlari, kafolati joyida. Rahmat!"
+              "iPhone 15 Pro Max buyurtma berdim. Toshkent ichida atigi 3 soatda bepul yetkazib berishdi. Hujjatlari, kafolati joyida. Rahmat!"
             </p>
             <div className="flex items-center gap-3">
               <img

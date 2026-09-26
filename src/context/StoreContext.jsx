@@ -25,7 +25,7 @@ const INITIAL_ORDERS = [
     phone: "+998 90 987 65 43",
     address: "Toshkent sh., Mirobod tumani, Nukus ko'chasi 21-uy",
     items: [
-      { id: 1, name: "Apple iPhone 16 Pro Max 256GB Natural Titanium", price: 15490000, quantity: 1 }
+      { id: 1, name: "Apple iPhone 15 Pro Max 256GB Natural Titanium", price: 15490000, quantity: 1 }
     ],
     subtotal: 15490000,
     discountAmount: 1549000,
