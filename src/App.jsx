@@ -5,6 +5,12 @@ import Footer from './components/layout/Footer';
 import MobileNav from './components/layout/MobileNav';
 import TelegramPreviewModal from './components/common/TelegramPreviewModal';
 
+// Telegram Mini App Dedicated Components
+import TelegramHeader from './components/telegram/TelegramHeader';
+import TelegramBottomNav from './components/telegram/TelegramBottomNav';
+import TelegramNativeControls from './components/telegram/TelegramNativeControls';
+import { useTelegramWebApp } from './hooks/useTelegramWebApp';
+
 // Pages
 import Home from './pages/Home';
 import Shop from './pages/Shop';
@@ -28,15 +34,20 @@ function ScrollToTop() {
 }
 
 export default function App() {
+  const { isTelegram } = useTelegramWebApp();
+
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200">
       <ScrollToTop />
-      
-      {/* Header */}
-      <Navbar />
+
+      {/* Telegram Native SDK Synchronization (MainButton, BackButton, Haptics) */}
+      <TelegramNativeControls />
+
+      {/* Header: Dedicated Telegram Mini App Header or Standard Web Navbar */}
+      {isTelegram ? <TelegramHeader /> : <Navbar />}
 
       {/* Main Content View */}
-      <main className="flex-1 pb-16 lg:pb-0">
+      <main className={`flex-1 ${isTelegram ? 'pb-20' : 'pb-16 lg:pb-0'}`}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/shop" element={<Shop />} />
@@ -53,14 +64,14 @@ export default function App() {
         </Routes>
       </main>
 
-      {/* Global Interactive Telegram Modal */}
+      {/* Global Interactive Telegram Modal (Order simulator) */}
       <TelegramPreviewModal />
 
-      {/* Bottom Mobile Navigation */}
-      <MobileNav />
+      {/* Navigation Dock: Telegram Mini App Bottom Bar or Standard Mobile Nav */}
+      {isTelegram ? <TelegramBottomNav /> : <MobileNav />}
 
-      {/* Footer */}
-      <Footer />
+      {/* Footer: Hidden inside Telegram Mini App for clean native app experience */}
+      {!isTelegram && <Footer />}
     </div>
   );
 }

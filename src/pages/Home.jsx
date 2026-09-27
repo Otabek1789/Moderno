@@ -20,10 +20,13 @@ import { useStore } from '../context/StoreContext';
 import { useLanguage } from '../context/LanguageContext';
 import ProductCard from '../components/common/ProductCard';
 import QuickViewModal from '../components/common/QuickViewModal';
+import TelegramStories from '../components/telegram/TelegramStories';
+import { useTelegramWebApp } from '../hooks/useTelegramWebApp';
 
 export default function Home() {
   const { products } = useStore();
   const { language, t } = useLanguage();
+  const { isTelegram, tgUser } = useTelegramWebApp();
   const [quickViewProduct, setQuickViewProduct] = useState(null);
 
   // Live Flash Sale Countdown Timer (Hours, Minutes, Seconds)
@@ -91,12 +94,36 @@ export default function Home() {
   ];
 
   return (
-    <div className="space-y-16 sm:space-y-24 pb-16">
+    <div className={isTelegram ? "space-y-8 pb-12" : "space-y-16 sm:space-y-24 pb-16"}>
       
-      {/* 1. Hero Section */}
-      <section className="relative overflow-hidden pt-6 sm:pt-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-indigo-900 via-slate-900 to-purple-950 text-white shadow-2xl border border-indigo-500/20 p-8 sm:p-14 lg:p-20">
+      {/* Telegram Mini App Top Stories & Compact Banner */}
+      {isTelegram ? (
+        <div className="space-y-3 pt-2">
+          <TelegramStories />
+          <div className="px-4">
+            <div className="p-4 rounded-3xl bg-gradient-to-tr from-indigo-600 via-indigo-700 to-purple-800 text-white shadow-xl shadow-indigo-600/25 border border-indigo-400/20">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-extrabold uppercase tracking-wider bg-white/20 px-2.5 py-0.5 rounded-full backdrop-blur-md">
+                  🔥 Telegram Aksiya
+                </span>
+                <span className="text-[10px] font-mono bg-white text-indigo-900 px-2 py-0.5 rounded-lg font-bold shadow-xs">
+                  KOD: UZBEK2025
+                </span>
+              </div>
+              <h2 className="text-base sm:text-lg font-extrabold mt-2 leading-snug">
+                Premium gadjetlar va texnika — 1 klikda buyurtma!
+              </h2>
+              <p className="text-xs text-indigo-200 mt-1">
+                Toshkent bo'ylab 24 soatda, viloyatlarga 2 kunda tezkor yetkazib beramiz.
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* Standard Web Desktop Hero Section */
+        <section className="relative overflow-hidden pt-6 sm:pt-10">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-indigo-900 via-slate-900 to-purple-950 text-white shadow-2xl border border-indigo-500/20 p-8 sm:p-14 lg:p-20">
             {/* Ambient glow */}
             <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
             <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
@@ -169,6 +196,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+    )}
 
       {/* 2. Popular Categories */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
