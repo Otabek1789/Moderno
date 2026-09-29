@@ -5,7 +5,8 @@ import {
   Grid,
   Heart,
   ShoppingBag,
-  ClipboardList
+  ClipboardList,
+  Rocket
 } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 import { useTelegramWebApp } from '../../hooks/useTelegramWebApp';
@@ -17,7 +18,7 @@ export default function TelegramBottomNav() {
   const navItems = [
     { to: '/', label: 'Asosiy', icon: Home },
     { to: '/shop', label: 'Katalog', icon: Grid },
-    { to: '/wishlist', label: 'Sevimlilar', icon: Heart, badge: wishlistCount },
+    { to: '/upgrader', label: 'Upgrader 🚀', icon: Rocket },
     { to: '/cart', label: 'Savat', icon: ShoppingBag, badge: cartCount },
     { to: '/orders', label: 'Buyurtmalar', icon: ClipboardList }
   ];

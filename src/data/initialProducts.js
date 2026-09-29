@@ -23,16 +23,16 @@ export const initialProducts = [
     isFeatured: true,
     isFlashSale: true,
     description: {
-      uz: "A18 Pro protsessori, titan korpus, 48MP yangilangan kamera va batareya quvvati bilan smartfonlar olamidagi yangi cho'qqi.",
-      ru: "Флагманский процессор A18 Pro, титановый корпус, улучшенная камера 48 Мп и рекордное время автономной работы.",
-      en: "Powered by the groundbreaking A18 Pro chip, titanium design, upgraded 48MP camera system, and industry-leading battery life."
+      uz: "A17 Pro protsessori, yengil va mustahkam tabiiy titan (Natural Titanium) korpus, 48MP professional kamera va 5x optik zum bilan smartfonlar olamidagi yangi cho'qqi.",
+      ru: "Флагманский процессор Apple A17 Pro, корпус из натурального титана, камера 48 Мп с 5-кратным оптическим зумом и порт USB-C 3.0.",
+      en: "Powered by the groundbreaking A17 Pro chip, premium Natural Titanium design, 48MP camera system with 5x zoom, and all-day battery life."
     },
     specs: {
-      "Ekran / Экран": "6.9\" Super Retina XDR OLED, 120Hz ProMotion",
-      "Protsessor / Процессор": "Apple A18 Pro (3 nm)",
+      "Ekran / Экран": "6.7\" Super Retina XDR OLED, 120Hz ProMotion",
+      "Protsessor / Процессор": "Apple A17 Pro (3 nm)",
       "Xotira / Память": "256GB / 8GB RAM",
-      "Kamera / Камера": "48 MP + 48 MP + 12 MP (5x zoom)",
-      "Akkumulyator / Батарея": "4685 mAh, 25W MagSafe",
+      "Kamera / Камера": "48 MP + 12 MP + 12 MP (5x zoom)",
+      "Akkumulyator / Баtaрея": "4422 mAh, 20W MagSafe",
       "Kafolat / Гарантия": "12 oy rasmiy kafolat"
     }
   },
@@ -391,9 +391,11 @@ export const initialProducts = [
     rating: 4.8,
     reviewsCount: 76,
     stock: 19,
-    image: "https://images.unsplash.com/photo-1609592424109-dd9892f1b177?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format&fit=crop&w=800&q=80",
     images: [
-      "https://images.unsplash.com/photo-1609592424109-dd9892f1b177?auto=format&fit=crop&w=800&q=80"
+      "https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=800&q=80"
     ],
     isNew: true,
     isFeatured: true,
@@ -408,6 +410,74 @@ export const initialProducts = [
       "Quvvat / Мощность": "Jami 250W (bitta portdan 140W PD 3.1)",
       "Portlar / Порты": "2x USB-C + 1x USB-A",
       "Kafolat / Гарантия": "12 oy kafolat"
+    }
+  },
+  {
+    id: 13,
+    name: "Italiya Charm Erkaklar Klassik Tufligi (Oxford Royal)",
+    category: "fashion",
+    categoryName: {
+      uz: "Kiyim & Poyabzal",
+      ru: "Одежда и Обувь",
+      en: "Fashion & Shoes"
+    },
+    price: 2800000,
+    discountPrice: 2500000,
+    rating: 4.9,
+    reviewsCount: 38,
+    stock: 12,
+    image: "https://images.unsplash.com/photo-1533867617858-e7b97e060509?auto=format&fit=crop&w=800&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1533867617858-e7b97e060509?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1614252369475-531eba835eb1?auto=format&fit=crop&w=800&q=80"
+    ],
+    isNew: true,
+    isFeatured: true,
+    isFlashSale: false,
+    description: {
+      uz: "100% tabiiy buzoq terisidan qo'lda tikilgan italyan uslubidagi qulay va hashamatli klassik tuflik. Rasmiy uchrashuvlar va to'ylar uchun ideal.",
+      ru: "Роскошные классические туфли оксфорды ручной работы из 100% натуральной телячьей кожи.",
+      en: "Handcrafted 100% genuine Italian calfskin Oxford dress shoes for formal and executive occasions."
+    },
+    specs: {
+      "Material / Материал": "100% Tabiiy buzoq charmi (Natural Leather)",
+      "Taglik / Подошва": "Durable Goodyear Welted rezina qoplamali",
+      "O'lchamlar / Размеры": "40, 41, 42, 43, 44",
+      "Ishlab chiqarilgan / Страна": "Italiya / Italy",
+      "Kafolat / Гарантия": "6 oy sifat kafolati"
+    }
+  },
+  {
+    id: 14,
+    name: "Air Zoom Pegasus Pro Sport Krossovkasi",
+    category: "fashion",
+    categoryName: {
+      uz: "Kiyim & Poyabzal",
+      ru: "Одежда и Обувь",
+      en: "Fashion & Shoes"
+    },
+    price: 1450000,
+    discountPrice: 1240000,
+    rating: 4.8,
+    reviewsCount: 52,
+    stock: 18,
+    image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80"
+    ],
+    isNew: false,
+    isFeatured: true,
+    isFlashSale: true,
+    description: {
+      uz: "Yugurish, trenirovka va kundalik yurish uchun yengil nafas oluvchi havo yostiqchali premium sport poyabzali.",
+      ru: "Ультралегкие беговые кроссовки с амортизирующей воздушной подушкой.",
+      en: "Lightweight and breathable athletic running shoes with responsive cushioning."
+    },
+    specs: {
+      "Amortizatsiya / Амортизация": "Air Zoom Dual-Pod texnologiyasi",
+      "Vazni / Вес": "260 gramm (juda yengil)",
+      "O'lchamlar / Размеры": "39, 40, 41, 42, 43, 44, 45",
+      "Kafolat / Гарантия": "6 oy rasmiy kafolat"
     }
   }
 ];

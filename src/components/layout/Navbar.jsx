@@ -16,8 +16,18 @@ import {
   Layers,
   Sparkles,
   ArrowRight,
-  Send
+  Send,
+  Scale,
+  Rocket,
+  Volume2,
+  VolumeX,
+  Gamepad2,
+  Gift,
+  RefreshCw,
+  Swords,
+  ChevronDown
 } from 'lucide-react';
+import sound from '../../utils/soundFX';
 import { useStore } from '../../context/StoreContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -26,7 +36,7 @@ import { formatPrice } from '../../utils/formatters';
 import { FlagUZ, FlagRU, FlagEN } from '../common/FlagIcons';
 
 export default function Navbar() {
-  const { cartCount, wishlistCount, products } = useStore();
+  const { cartCount, wishlistCount, compareCount, products } = useStore();
   const { language, setLanguage, t } = useLanguage();
   const { theme, toggleTheme, isDark } = useTheme();
   const { user, isAdmin, logout } = useAuth();
@@ -38,10 +48,21 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+  const [isToolsDropdownOpen, setIsToolsDropdownOpen] = useState(false);
+  const [isSoundMuted, setIsSoundMuted] = useState(() => sound.isMuted());
 
   const searchRef = useRef(null);
   const langRef = useRef(null);
   const userRef = useRef(null);
+  const toolsRef = useRef(null);
+
+  useEffect(() => {
+    const handleSoundToggle = (e) => {
+      setIsSoundMuted(e.detail.muted);
+    };
+    window.addEventListener('moderno-sound-toggle', handleSoundToggle);
+    return () => window.removeEventListener('moderno-sound-toggle', handleSoundToggle);
+  }, []);
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -54,6 +75,9 @@ export default function Navbar() {
       }
       if (userRef.current && !userRef.current.contains(event.target)) {
         setIsUserDropdownOpen(false);
+      }
+      if (toolsRef.current && !toolsRef.current.contains(event.target)) {
+        setIsToolsDropdownOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -98,43 +122,119 @@ export default function Navbar() {
   const currentLangObj = languages.find((l) => l.code === language) || languages[0];
   const CurrentIcon = currentLangObj.Icon;
 
+  const interactiveTools = [
+    {
+      to: '/builder',
+      title: 'PC Builder Studio',
+      desc: "Kompyuter yig'ish va FPS tester",
+      icon: Gamepad2,
+      badge: 'Yangi 🎮',
+      color: 'from-blue-600 to-indigo-600',
+      badgeColor: 'bg-blue-500/20 text-blue-400 border-blue-500/30'
+    },
+    {
+      to: '/mystery-box',
+      title: 'Mystery Box Arena',
+      desc: 'Sirli qutilar & bepul yutuqlar',
+      icon: Gift,
+      badge: 'Hot 🎁',
+      color: 'from-amber-500 to-rose-500',
+      badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+    },
+    {
+      to: '/trade-in',
+      title: 'Trade-In Kalkulyator',
+      desc: 'Eski gadjetni yangisiga almashtirish',
+      icon: RefreshCw,
+      badge: 'Almashish 🔄',
+      color: 'from-emerald-500 to-teal-600',
+      badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+    },
+    {
+      to: '/battle',
+      title: 'Gadget Battle Arena',
+      desc: 'Flagmanlar yakkama-yak jangi',
+      icon: Swords,
+      badge: 'VS ⚔️',
+      color: 'from-purple-600 to-pink-600',
+      badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-500/30'
+    },
+    {
+      to: '/upgrader',
+      title: "Upgrader O'yini",
+      desc: 'Gadjetni kuchaytirish & omad',
+      icon: Rocket,
+      badge: 'Omad 🚀',
+      color: 'from-indigo-600 to-violet-600',
+      badgeColor: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30'
+    }
+  ];
+
+  const handleToggleSound = () => {
+    const newMuted = sound.toggleMute();
+    setIsSoundMuted(newMuted);
+  };
+
   const navLinks = [
     { to: '/', label: t('nav.home') },
     { to: '/shop', label: t('nav.shop') },
+    { to: '/compare', label: t('nav.compare'), badge: compareCount },
+    { to: '/orders', label: t('nav.orders') },
     { to: '/about', label: t('nav.about') },
-    { to: '/contact', label: t('nav.contact') },
-    { to: '/orders', label: t('nav.orders') }
+    { to: '/contact', label: t('nav.contact') }
   ];
 
   return (
     <header className="sticky top-0 z-40 w-full bg-white/85 dark:bg-slate-950/85 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 transition-colors">
-      {/* Top Banner (Optional Promo) */}
-      <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white text-xs py-1.5 px-4 text-center font-medium tracking-wide">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-semibold">
-            <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
-            <span>"UZBEK2025" promokodi bilan 15% chegirma!</span>
-          </span>
-          <span className="mx-auto sm:mx-0">
-            🤖 Telegram Bot: <a href="https://t.me/nekitekibeki_bot?start=website" target="_blank" rel="noopener noreferrer" className="underline font-bold hover:text-amber-200">@nekitekibeki_bot</a> orqali xarid qiling!
-          </span>
-          <a
-            href="https://t.me/nekitekibeki_bot?start=website"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden md:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/20 hover:bg-white/30 text-[11px] font-bold transition"
-          >
-            <Send className="w-3 h-3" /> Botni Ochish
-          </a>
+      {/* Top Banner (Centered Promo Announcement) */}
+      <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white text-xs py-1.5 px-4 font-medium tracking-wide relative overflow-hidden">
+        <div className="w-full max-w-[1600px] mx-auto flex items-center justify-between min-h-[26px] relative">
+          
+          {/* Left Decorative/Badge (Hidden on small, balanced with right side) */}
+          <div className="hidden lg:flex items-center gap-2 text-[11px] text-white/90 shrink-0">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="font-semibold">Rasmiy Do'kon</span>
+          </div>
+
+          {/* EXACT GEOMETRIC CENTER ANNOUNCEMENT */}
+          <div className="w-full lg:w-auto lg:absolute lg:left-1/2 lg:-translate-x-1/2 flex items-center justify-center gap-2 sm:gap-2.5 text-center">
+            <span className="inline-flex items-center gap-1.5 font-bold text-[11.5px] sm:text-xs">
+              <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse shrink-0" />
+              <span>"UZBEK2025" promokodi bilan 15% chegirma!</span>
+            </span>
+            <a
+              href="https://t.me/nekitekibeki_bot?start=website"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/20 hover:bg-white text-white hover:text-indigo-700 text-[11px] font-bold transition shadow-xs whitespace-nowrap active:scale-95"
+            >
+              <Send className="w-3 h-3" />
+              <span>Botni Ochish</span>
+            </a>
+          </div>
+
+          {/* Right Telegram Link */}
+          <div className="hidden lg:flex items-center gap-1.5 text-[11px] text-white/90 shrink-0 ml-auto">
+            <span>🤖 Telegram Bot:</span>
+            <a
+              href="https://t.me/nekitekibeki_bot?start=website"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline font-bold hover:text-amber-200"
+            >
+              @nekitekibeki_bot
+            </a>
+          </div>
+
         </div>
       </div>
 
       {/* Main Navbar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 sm:h-20 gap-4">
+      <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 sm:h-20 gap-3">
           
           {/* Logo & Mobile Menu Toggle */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 shrink-0">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="lg:hidden p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl"
@@ -158,36 +258,124 @@ export default function Navbar() {
           </div>
 
           {/* Desktop Nav Links */}
-          <nav className="hidden lg:flex items-center space-x-1 xl:space-x-2">
-            {navLinks.map((link) => {
-              const isActive = location.pathname === link.to;
-              return (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  className={`px-3.5 py-2 rounded-xl text-sm font-semibold transition-all ${
-                    isActive
-                      ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50'
-                      : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
-            {isAdmin && (
-              <Link
-                to="/admin"
-                className="px-3.5 py-2 rounded-xl text-sm font-semibold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 flex items-center gap-1.5"
+          <nav className="hidden lg:flex items-center space-x-1 xl:space-x-1.5 shrink-0">
+            <Link
+              to="/"
+              className={`px-2.5 xl:px-3 py-2 rounded-xl text-xs xl:text-sm font-bold whitespace-nowrap shrink-0 transition-all flex items-center gap-1.5 ${
+                location.pathname === '/'
+                  ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
+              }`}
+            >
+              <span>{t('nav.home')}</span>
+            </Link>
+
+            <Link
+              to="/shop"
+              className={`px-2.5 xl:px-3 py-2 rounded-xl text-xs xl:text-sm font-bold whitespace-nowrap shrink-0 transition-all flex items-center gap-1.5 ${
+                location.pathname === '/shop'
+                  ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
+              }`}
+            >
+              <span>{t('nav.shop')}</span>
+            </Link>
+
+            {/* Interactive Studios & Games Dropdown */}
+            <div ref={toolsRef} className="relative">
+              <button
+                onClick={() => {
+                  sound.playClick();
+                  setIsToolsDropdownOpen(!isToolsDropdownOpen);
+                }}
+                className={`px-2.5 xl:px-3 py-2 rounded-xl text-xs xl:text-sm font-bold whitespace-nowrap shrink-0 transition-all flex items-center gap-1.5 ${
+                  ['/builder', '/mystery-box', '/trade-in', '/battle', '/upgrader'].includes(location.pathname)
+                    ? 'bg-gradient-to-r from-purple-500/20 via-indigo-500/20 to-pink-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/30 shadow-xs'
+                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                }`}
               >
-                <ShieldAlert className="w-4 h-4" />
-                {t('nav.admin')}
-              </Link>
-            )}
+                <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-pulse shrink-0" />
+                <span>Studiyalar & O'yinlar</span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isToolsDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {isToolsDropdownOpen && (
+                <div className="absolute left-0 top-full mt-2 w-72 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden z-50 p-2 animate-fadeIn">
+                  <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-800 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    Interaktiv Asboblar & O'yinlar
+                  </div>
+                  <div className="space-y-1 mt-1">
+                    {interactiveTools.map((tool) => {
+                      const Icon = tool.icon;
+                      const isCurrent = location.pathname === tool.to;
+                      return (
+                        <Link
+                          key={tool.to}
+                          to={tool.to}
+                          onClick={() => {
+                            sound.playClick();
+                            setIsToolsDropdownOpen(false);
+                          }}
+                          className={`flex items-center gap-3 p-2.5 rounded-xl transition ${
+                            isCurrent
+                              ? 'bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-500/30'
+                              : 'hover:bg-slate-50 dark:hover:bg-slate-800/80'
+                          }`}
+                        >
+                          <div className={`w-8 h-8 rounded-xl bg-gradient-to-tr ${tool.color} flex items-center justify-center text-white shrink-0 shadow-xs`}>
+                            <Icon className="w-4 h-4" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs font-bold text-slate-800 dark:text-slate-100">
+                                {tool.title}
+                              </span>
+                              <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded border ${tool.badgeColor}`}>
+                                {tool.badge}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                              {tool.desc}
+                            </p>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <Link
+              to="/compare"
+              className={`px-2.5 xl:px-3 py-2 rounded-xl text-xs xl:text-sm font-bold whitespace-nowrap shrink-0 transition-all flex items-center gap-1.5 ${
+                location.pathname === '/compare'
+                  ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
+              }`}
+            >
+              <span>{t('nav.compare')}</span>
+              {compareCount > 0 && (
+                <span className="w-4 h-4 rounded-full bg-indigo-600 text-white text-[10px] font-bold flex items-center justify-center">
+                  {compareCount}
+                </span>
+              )}
+            </Link>
+
+            <Link
+              to="/orders"
+              className={`px-2.5 xl:px-3 py-2 rounded-xl text-xs xl:text-sm font-bold whitespace-nowrap shrink-0 transition-all flex items-center gap-1.5 ${
+                location.pathname === '/orders'
+                  ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
+              }`}
+            >
+              <span>{t('nav.orders')}</span>
+            </Link>
           </nav>
 
           {/* Live Search Bar (Desktop) */}
-          <div ref={searchRef} className="relative hidden md:block flex-1 max-w-xs xl:max-w-sm">
+          <div ref={searchRef} className="relative hidden md:block flex-1 max-w-[180px] xl:max-w-xs">
             <form onSubmit={handleSearchSubmit} className="relative">
               <input
                 type="text"
@@ -309,6 +497,35 @@ export default function Navbar() {
               {isDark ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5" />}
             </button>
 
+            {/* Sound Toggle (Feature 7) */}
+            <button
+              onClick={handleToggleSound}
+              aria-label={isSoundMuted ? "Ovozni yoqish" : "Ovozni o'chirish"}
+              title={isSoundMuted ? "Ovoz o'chirilgan (Muted) - Yoqish uchun bosing" : "Ovoz yoqilgan (Sound FX) - O'chirish uchun bosing"}
+              className="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition"
+            >
+              {isSoundMuted ? (
+                <VolumeX className="w-5 h-5 text-rose-500" />
+              ) : (
+                <Volume2 className="w-5 h-5 text-emerald-500 animate-pulse" />
+              )}
+            </button>
+
+            {/* Compare Icon */}
+            <Link
+              to="/compare"
+              aria-label={t('nav.compare')}
+              className="relative p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition"
+              title="Taqqoslash"
+            >
+              <Scale className="w-5 h-5" />
+              {compareCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-indigo-600 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center animate-scaleUp shadow-xs">
+                  {compareCount}
+                </span>
+              )}
+            </Link>
+
             {/* Wishlist Icon */}
             <Link
               to="/wishlist"
@@ -342,13 +559,27 @@ export default function Navbar() {
               {user ? (
                 <button
                   onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
-                  className="flex items-center gap-2 p-1 pl-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-2xl transition"
+                  className="flex items-center gap-2 p-1 pl-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-2xl transition border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
+                  title="Akkaunt menyusi"
                 >
-                  <img
-                    src={user.avatar}
-                    alt={user.name}
-                    className="w-8 h-8 rounded-xl object-cover ring-2 ring-indigo-500/30"
-                  />
+                  <div className="relative">
+                    {user.avatar ? (
+                      <img
+                        src={user.avatar}
+                        alt={user.name}
+                        className="w-8 h-8 rounded-xl object-cover ring-2 ring-indigo-500/30"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center text-white text-xs font-black shadow-xs ring-2 ring-indigo-500/30">
+                        {(user.name || user.email || 'U').charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    {isAdmin && (
+                      <span className="absolute -top-1.5 -right-1 text-xs" title="Admin">
+                        👑
+                      </span>
+                    )}
+                  </div>
                   <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 hidden xl:inline">
                     {user.name.split(' ')[0]}
                   </span>
@@ -356,7 +587,7 @@ export default function Navbar() {
               ) : (
                 <Link
                   to="/login"
-                  className="px-3.5 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition shadow-md shadow-indigo-600/20 flex items-center gap-1.5"
+                  className="px-3.5 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition shadow-md shadow-indigo-600/20 flex items-center gap-1.5 shrink-0 whitespace-nowrap"
                 >
                   <User className="w-3.5 h-3.5" />
                   <span className="hidden sm:inline">{t('nav.login')}</span>
@@ -365,29 +596,44 @@ export default function Navbar() {
 
               {/* User Dropdown */}
               {isUserDropdownOpen && user && (
-                <div className="absolute right-0 top-full mt-2 w-52 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl overflow-hidden z-50 p-2">
+                <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl overflow-hidden z-50 p-2 animate-fadeIn">
                   <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-800">
                     <p className="text-xs font-bold text-slate-800 dark:text-slate-200">{user.name}</p>
-                    <p className="text-[11px] text-slate-400 capitalize">
-                      {user.role === 'admin' ? "👑 Administrator" : "👤 Mijoz"}
+                    <p className="text-[11px] font-semibold text-slate-400 capitalize">
+                      {isAdmin ? "👑 Bosh Administrator" : "👤 Mijoz"}
                     </p>
+                    <p className="text-[10px] text-slate-400 truncate">{user.email}</p>
                   </div>
 
-                  {user.role === 'admin' && (
+                  {isAdmin && (
                     <Link
                       to="/admin"
                       onClick={() => setIsUserDropdownOpen(false)}
-                      className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40 rounded-xl mt-1"
+                      className="flex items-center justify-between px-3 py-2.5 text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 dark:hover:bg-amber-900/50 rounded-xl mt-1.5 border border-amber-200 dark:border-amber-800/60 transition shadow-xs"
                     >
-                      <ShieldAlert className="w-4 h-4" />
-                      {t('nav.admin')}
+                      <div className="flex items-center gap-2">
+                        <ShieldAlert className="w-4 h-4 text-amber-500 shrink-0" />
+                        <span>Admin Panel</span>
+                      </div>
+                      <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-600 dark:text-amber-400">
+                        Boshqaruv
+                      </span>
                     </Link>
                   )}
 
                   <Link
+                    to="/profile"
+                    onClick={() => setIsUserDropdownOpen(false)}
+                    className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-slate-800 rounded-xl mt-1 transition"
+                  >
+                    <User className="w-4 h-4 text-indigo-500" />
+                    <span>Profilim & Rasmni O'zgartirish</span>
+                  </Link>
+
+                  <Link
                     to="/orders"
                     onClick={() => setIsUserDropdownOpen(false)}
-                    className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl"
+                    className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl mt-1 transition"
                   >
                     <Package className="w-4 h-4" />
                     {t('nav.orders')}
@@ -398,7 +644,7 @@ export default function Navbar() {
                       logout();
                       setIsUserDropdownOpen(false);
                     }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl mt-1"
+                    className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl mt-1 transition"
                   >
                     <LogOut className="w-4 h-4" />
                     {t('nav.logout')}
@@ -437,6 +683,30 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
+
+          {/* Interactive Tools Section for Mobile */}
+          <div className="pt-2 pb-1 border-t border-slate-200 dark:border-slate-800">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-1">
+              🎮 Studiya & O'yinlar
+            </p>
+            {interactiveTools.map((tool) => {
+              const Icon = tool.icon;
+              return (
+                <Link
+                  key={tool.to}
+                  to={tool.to}
+                  onClick={() => sound.playClick()}
+                  className="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-900"
+                >
+                  <div className={`w-7 h-7 rounded-lg bg-gradient-to-tr ${tool.color} flex items-center justify-center text-white shrink-0`}>
+                    <Icon className="w-3.5 h-3.5" />
+                  </div>
+                  <span className="flex-1">{tool.title}</span>
+                  <span className={`text-[9px] font-black px-1.5 py-0.5 rounded border ${tool.badgeColor}`}>{tool.badge}</span>
+                </Link>
+              );
+            })}
+          </div>
           {isAdmin && (
             <Link
               to="/admin"

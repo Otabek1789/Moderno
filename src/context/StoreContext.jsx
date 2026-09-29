@@ -19,6 +19,59 @@ const INITIAL_PROMOCODES = [
   { code: 'SUPER50K', type: 'fixed', value: 50000, desc: "50 000 so'm qat'iy chegirma" }
 ];
 
+const INITIAL_REVIEWS = [
+  {
+    id: 1,
+    productId: 1,
+    userName: "Jahongir Aliyev",
+    rating: 5,
+    title: "Aqlbovar qilmas tezlik!",
+    comment: "Natural Titanium rangi juda chiroyli. Kamera sifati zo'r, batareyasi bemalol 1.5 kunga yetmoqda. Yetkazib berish ham atigi 4 soatda bo'ldi!",
+    createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
+    verified: true
+  },
+  {
+    id: 2,
+    productId: 1,
+    userName: "Madina Karimova",
+    rating: 5,
+    title: "100% original gadjet",
+    comment: "Apple rasmiy kafolati bor ekan, tekshirib ko'rdim. Do'konga katta rahmat, sovg'asiga g'ilof va himoya oynasi ham qo'shib berishdi!",
+    createdAt: new Date(Date.now() - 86400000 * 6).toISOString(),
+    verified: true
+  },
+  {
+    id: 3,
+    productId: 2,
+    userName: "Davron Shokirov",
+    rating: 5,
+    title: "Galaxy AI vau effekti berdi",
+    comment: "S Pen juda qulay, fotosuratlardan ortiqcha narsalarni sun'iy intellekt orqali o'chirish funksiyasi juda ajoyib ishlaydi.",
+    createdAt: new Date(Date.now() - 86400000 * 4).toISOString(),
+    verified: true
+  },
+  {
+    id: 4,
+    productId: 13,
+    userName: "Shavkat Qodirov",
+    rating: 5,
+    title: "Haqiqiy italyan charmi!",
+    comment: "Klassik kostyum bilan ajoyib yarashdi. Terisi juda yumshoq, oyoqni qismaydi. Sifatiga 5 baho!",
+    createdAt: new Date(Date.now() - 86400000 * 1).toISOString(),
+    verified: true
+  },
+  {
+    id: 5,
+    productId: 14,
+    userName: "Bekzod Umarov",
+    rating: 5,
+    title: "Yugurish uchun eng zo'r krossovka",
+    comment: "Har kuni ertalab yuguraman, amotizatsiyasi a'lo darajada. Oyoq charchamaydi va nafas oladi.",
+    createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
+    verified: true
+  }
+];
+
 const INITIAL_ORDERS = [
   {
     id: 1024,
@@ -60,21 +113,62 @@ const INITIAL_ORDERS = [
 ];
 
 export function StoreProvider({ children }) {
-  // 1. Products with LocalStorage persistence
+  // 1. Products with LocalStorage persistence & auto-migration
   const [products, setProducts] = useState(() => {
-    const saved = localStorage.getItem('shop_products_v3');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        return initialProducts;
+    try {
+      const savedV4 = localStorage.getItem('shop_products_v4');
+      const savedV3 = localStorage.getItem('shop_products_v3');
+      const raw = savedV4 || savedV3;
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        const ankerWorkingImg = "https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format&fit=crop&w=800&q=80";
+        const ankerWorkingImages = [
+          "https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=800&q=80"
+        ];
+
+        const sanitized = parsed.map((p) => {
+          if (p.id === 1) {
+            return {
+              ...p,
+              name: "Apple iPhone 15 Pro Max 256GB Natural Titanium",
+              description: initialProducts[0].description,
+              specs: initialProducts[0].specs,
+              image: initialProducts[0].image,
+              images: initialProducts[0].images
+            };
+          }
+          if (p.id === 12) {
+            return {
+              ...p,
+              image: ankerWorkingImg,
+              images: ankerWorkingImages
+            };
+          }
+          return p;
+        });
+
+        // Ensure newly added items (like 13 Tuflik, 14 Pegasus) are retained
+        const existingIds = new Set(sanitized.map((p) => p.id));
+        initialProducts.forEach((ip) => {
+          if (!existingIds.has(ip.id)) {
+            sanitized.push(ip);
+          }
+        });
+
+        localStorage.setItem('shop_products_v4', JSON.stringify(sanitized));
+        localStorage.removeItem('shop_products_v3');
+        return sanitized;
       }
+    } catch {
+      // fallback
     }
     return initialProducts;
   });
 
   useEffect(() => {
-    localStorage.setItem('shop_products_v3', JSON.stringify(products));
+    localStorage.setItem('shop_products_v4', JSON.stringify(products));
   }, [products]);
 
   // 2. Cart with LocalStorage persistence
@@ -82,7 +176,29 @@ export function StoreProvider({ children }) {
     const saved = localStorage.getItem('shop_cart');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        return parsed.map((item) => {
+          if (item.product?.id === 1) {
+            return {
+              ...item,
+              product: {
+                ...item.product,
+                name: "Apple iPhone 15 Pro Max 256GB Natural Titanium",
+                image: initialProducts[0].image
+              }
+            };
+          }
+          if (item.product?.id === 12) {
+            return {
+              ...item,
+              product: {
+                ...item.product,
+                image: "https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format&fit=crop&w=800&q=80"
+              }
+            };
+          }
+          return item;
+        });
       } catch {
         return [];
       }
@@ -99,7 +215,23 @@ export function StoreProvider({ children }) {
     const saved = localStorage.getItem('shop_wishlist');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        return parsed.map((item) => {
+          if (item.id === 1) {
+            return {
+              ...item,
+              name: "Apple iPhone 15 Pro Max 256GB Natural Titanium",
+              image: initialProducts[0].image
+            };
+          }
+          if (item.id === 12) {
+            return {
+              ...item,
+              image: "https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format&fit=crop&w=800&q=80"
+            };
+          }
+          return item;
+        });
       } catch {
         return [];
       }
@@ -204,7 +336,8 @@ export function StoreProvider({ children }) {
 
   const resetProductsToDefault = () => {
     setProducts(initialProducts);
-    localStorage.setItem('shop_products_v3', JSON.stringify(initialProducts));
+    localStorage.setItem('shop_products_v4', JSON.stringify(initialProducts));
+    localStorage.removeItem('shop_products_v3');
   };
 
   // --- Cart Actions ---
@@ -387,6 +520,154 @@ export function StoreProvider({ children }) {
     setTelegramModal((prev) => ({ ...prev, isOpen: false }));
   };
 
+  // --- 8. Compare List Actions (Max 4 items) ---
+  const [compareList, setCompareList] = useState(() => {
+    const saved = localStorage.getItem('shop_compare_v2');
+    if (!saved) return [];
+    try {
+      const parsed = JSON.parse(saved);
+      return parsed.map((item) => {
+        if (item.id === 1) {
+          return {
+            ...item,
+            name: "Apple iPhone 15 Pro Max 256GB Natural Titanium",
+            image: initialProducts[0].image
+          };
+        }
+        if (item.id === 12) {
+          return {
+            ...item,
+            image: "https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format&fit=crop&w=800&q=80"
+          };
+        }
+        return item;
+      });
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem('shop_compare_v2', JSON.stringify(compareList));
+  }, [compareList]);
+
+  const addToCompare = (product) => {
+    const exists = compareList.some((item) => item.id === product.id);
+    if (exists) {
+      removeFromCompare(product.id);
+      return { added: false, removed: true };
+    }
+    if (compareList.length >= 4) {
+      alert("Taqqoslash uchun eng ko'pi bilan 4 ta mahsulot tanlash mumkin!");
+      return { added: false, full: true };
+    }
+    setCompareList((prev) => [...prev, product]);
+    return { added: true };
+  };
+
+  const removeFromCompare = (productId) => {
+    setCompareList((prev) => prev.filter((item) => item.id !== productId));
+  };
+
+  const isInCompare = (productId) => compareList.some((item) => item.id === productId);
+
+  const clearCompare = () => setCompareList([]);
+
+  const compareCount = compareList.length;
+
+  // --- 9. Reviews Actions ---
+  const [reviews, setReviews] = useState(() => {
+    const saved = localStorage.getItem('shop_reviews_v2');
+    return saved ? JSON.parse(saved) : INITIAL_REVIEWS;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('shop_reviews_v2', JSON.stringify(reviews));
+  }, [reviews]);
+
+  const addReview = ({ productId, userName, rating, comment, title }) => {
+    const pId = Number(productId);
+    const newRev = {
+      id: Date.now(),
+      productId: pId,
+      userName: userName.trim() || 'Xaridor',
+      rating: Number(rating) || 5,
+      title: title?.trim() || '',
+      comment: comment.trim(),
+      createdAt: new Date().toISOString(),
+      verified: true
+    };
+    const updated = [newRev, ...reviews];
+    setReviews(updated);
+
+    // Recalculate average rating & count for this product
+    const prodReviews = updated.filter((r) => r.productId === pId);
+    const avg = prodReviews.reduce((sum, r) => sum + r.rating, 0) / prodReviews.length;
+    updateProduct(pId, {
+      rating: Number(avg.toFixed(1)),
+      reviewsCount: prodReviews.length
+    });
+
+    return newRev;
+  };
+
+  const getProductReviews = (productId) => {
+    return reviews.filter((r) => r.productId === Number(productId));
+  };
+
+  // --- 10. Recently Viewed Products (max 8) ---
+  const [recentlyViewedIds, setRecentlyViewedIds] = useState(() => {
+    const saved = localStorage.getItem('shop_recently_viewed_v2');
+    return saved ? JSON.parse(saved) : [1, 2, 6, 13];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('shop_recently_viewed_v2', JSON.stringify(recentlyViewedIds));
+  }, [recentlyViewedIds]);
+
+  const addToRecentlyViewed = (productId) => {
+    const pId = Number(productId);
+    setRecentlyViewedIds((prev) => {
+      const filtered = prev.filter((id) => id !== pId);
+      return [pId, ...filtered].slice(0, 8);
+    });
+  };
+
+  // --- 11. Quick 1-Click Buy Modal State ---
+  const [quickBuyModal, setQuickBuyModal] = useState({
+    isOpen: false,
+    product: null
+  });
+
+  const openQuickBuy = (product) => setQuickBuyModal({ isOpen: true, product });
+  const closeQuickBuy = () => setQuickBuyModal({ isOpen: false, product: null });
+
+  // --- 12. Upgrader History State ---
+  const [upgradeHistory, setUpgradeHistory] = useState(() => {
+    const saved = localStorage.getItem('shop_upgrader_history_v2');
+    return saved ? JSON.parse(saved) : [
+      {
+        id: 1,
+        sourceName: "Air Zoom Pegasus Pro Sport Krossovkasi",
+        targetName: "Italiya Charm Erkaklar Klassik Tufligi (Oxford Royal)",
+        chance: 49.6,
+        won: true,
+        date: new Date(Date.now() - 3600000 * 2).toISOString()
+      }
+    ];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('shop_upgrader_history_v2', JSON.stringify(upgradeHistory));
+  }, [upgradeHistory]);
+
+  const addUpgradeRecord = (record) => {
+    setUpgradeHistory((prev) => [
+      { id: Date.now(), date: new Date().toISOString(), ...record },
+      ...prev.slice(0, 19)
+    ]);
+  };
+
   return (
     <StoreContext.Provider
       value={{
@@ -423,7 +704,28 @@ export function StoreProvider({ children }) {
         updateTelegramSettings,
         telegramModal,
         closeTelegramModal,
-        setTelegramModal
+        setTelegramModal,
+        // Compare
+        compareList,
+        addToCompare,
+        removeFromCompare,
+        isInCompare,
+        clearCompare,
+        compareCount,
+        // Reviews
+        reviews,
+        addReview,
+        getProductReviews,
+        // Recently Viewed
+        recentlyViewedIds,
+        addToRecentlyViewed,
+        // Quick 1-Click Buy
+        quickBuyModal,
+        openQuickBuy,
+        closeQuickBuy,
+        // Upgrader
+        upgradeHistory,
+        addUpgradeRecord
       }}
     >
       {children}

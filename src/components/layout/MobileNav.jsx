@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Store, Heart, ShoppingBag, User, ShieldAlert } from 'lucide-react';
+import { Home, Store, Heart, ShoppingBag, User, ShieldAlert, Rocket } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -14,11 +14,12 @@ export default function MobileNav() {
   const links = [
     { to: '/', label: t('nav.home'), icon: Home },
     { to: '/shop', label: t('nav.shop'), icon: Store },
-    { to: '/wishlist', label: t('nav.wishlist'), icon: Heart, badge: wishlistCount },
+    { to: '/upgrader', label: "Upgrader 🚀", icon: Rocket, isSpecial: true },
     { to: '/cart', label: t('nav.cart'), icon: ShoppingBag, badge: cartCount },
+    { to: '/wishlist', label: t('nav.wishlist'), icon: Heart, badge: wishlistCount },
     {
       to: isAdmin ? '/admin' : user ? '/orders' : '/login',
-      label: isAdmin ? 'Admin' : user ? t('nav.profile') : t('nav.login'),
+      label: isAdmin ? 'Admin' : user ? t('nav.orders') : t('nav.login'),
       icon: isAdmin ? ShieldAlert : User
     }
   ];

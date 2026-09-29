@@ -6,11 +6,12 @@ import { useLanguage } from '../../context/LanguageContext';
 import { formatPrice } from '../../utils/formatters';
 
 export default function ProductCard({ product, onQuickView }) {
-  const { addToCart, toggleWishlist, isInWishlist } = useStore();
+  const { addToCart, toggleWishlist, isInWishlist, addToCompare, isInCompare } = useStore();
   const { language, t } = useLanguage();
   const [added, setAdded] = useState(false);
 
   const inWishlist = isInWishlist(product.id);
+  const inCompare = isInCompare(product.id);
 
   const handleAddToCart = (e) => {
     e.preventDefault();
@@ -24,6 +25,12 @@ export default function ProductCard({ product, onQuickView }) {
     e.preventDefault();
     e.stopPropagation();
     toggleWishlist(product);
+  };
+
+  const handleCompareToggle = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addToCompare(product);
   };
 
   const handleQuickView = (e) => {
@@ -42,6 +49,9 @@ export default function ProductCard({ product, onQuickView }) {
       ? product.categoryName[language] || product.categoryName['uz']
       : product.category;
 
+  const activePrice = product.discountPrice || product.price;
+  const monthlyInstallment = Math.round(activePrice / 12);
+
   return (
     <div className="group relative bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 flex flex-col h-full">
       {/* Product Image & Badges */}
@@ -52,6 +62,10 @@ export default function ProductCard({ product, onQuickView }) {
             alt={product.name}
             className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
             loading="lazy"
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = "https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format&fit=crop&w=800&q=80";
+            }}
           />
         </Link>
 
@@ -80,8 +94,23 @@ export default function ProductCard({ product, onQuickView }) {
                 ? 'bg-rose-500 text-white shadow-rose-500/30 scale-105'
                 : 'bg-white/80 dark:bg-slate-900/80 text-slate-600 dark:text-slate-300 hover:text-rose-500 hover:scale-110'
             }`}
+            title="Sevimlilarga"
           >
             <Heart className={`w-4 h-4 ${inWishlist ? 'fill-current' : ''}`} />
+          </button>
+
+          {/* Compare Button */}
+          <button
+            onClick={handleCompareToggle}
+            aria-label={t('nav.compare')}
+            className={`p-2 rounded-xl backdrop-blur-md transition-all shadow-md ${
+              inCompare
+                ? 'bg-indigo-600 text-white shadow-indigo-600/30 scale-105'
+                : 'bg-white/80 dark:bg-slate-900/80 text-slate-600 dark:text-slate-300 hover:text-indigo-600 hover:scale-110'
+            }`}
+            title={inCompare ? "Taqqoslashda mavjud" : "Taqqoslashga qo'shish"}
+          >
+            <span className="text-xs font-bold leading-none">⚖️</span>
           </button>
 
           {/* Quick View Button */}
@@ -89,6 +118,7 @@ export default function ProductCard({ product, onQuickView }) {
             onClick={handleQuickView}
             aria-label={t('shop.quickView')}
             className="p-2 rounded-xl bg-white/80 dark:bg-slate-900/80 text-slate-600 dark:text-slate-300 hover:text-indigo-600 hover:scale-110 backdrop-blur-md transition-all shadow-md opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 duration-300"
+            title="Tez ko'rish"
           >
             <Eye className="w-4 h-4" />
           </button>
@@ -112,9 +142,16 @@ export default function ProductCard({ product, onQuickView }) {
         </div>
 
         {/* Title */}
-        <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-sm sm:text-base mb-3 line-clamp-2 hover:text-indigo-600 dark:hover:text-indigo-400 transition">
+        <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-sm sm:text-base mb-2 line-clamp-2 hover:text-indigo-600 dark:hover:text-indigo-400 transition">
           <Link to={`/product/${product.id}`}>{product.name}</Link>
         </h3>
+
+        {/* Monthly Installment Pill */}
+        <div className="mb-3">
+          <span className="inline-block px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400 text-[11px] font-bold">
+            Oyiga {formatPrice(monthlyInstallment)} dan
+          </span>
+        </div>
 
         {/* Spacer */}
         <div className="mt-auto"></div>

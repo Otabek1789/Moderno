@@ -9,10 +9,12 @@ import {
   Percent,
   Truck,
   Sparkles,
-  X
+  X,
+  Rocket
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { useLanguage } from '../context/LanguageContext';
+import RecentlyViewed from '../components/common/RecentlyViewed';
 import { formatPrice } from '../utils/formatters';
 
 export default function Cart() {
@@ -133,6 +135,10 @@ export default function Cart() {
                       src={item.product.image}
                       alt={item.product.name}
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = "https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format&fit=crop&w=800&q=80";
+                      }}
                     />
                   </Link>
 
@@ -146,8 +152,18 @@ export default function Cart() {
                     <p className="text-xs text-slate-400 mt-1 capitalize">
                       {item.product.category}
                     </p>
-                    <div className="text-sm font-semibold text-indigo-600 dark:text-indigo-400 mt-1">
-                      {formatPrice(activePrice)}
+                    <div className="flex items-center gap-2 mt-2">
+                      <div className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">
+                        {formatPrice(activePrice)}
+                      </div>
+                      <Link
+                        to={`/upgrader?sourceId=${item.product.id}`}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-gradient-to-r from-purple-500/10 to-indigo-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 text-[11px] font-bold hover:from-purple-600 hover:to-indigo-600 hover:text-white transition shadow-xs"
+                        title="Bu tovarni Upgraderga qo'yish"
+                      >
+                        <Rocket className="w-3 h-3" />
+                        <span>Upgrader 🚀</span>
+                      </Link>
                     </div>
                   </div>
 
@@ -312,6 +328,9 @@ export default function Cart() {
         </div>
 
       </div>
+
+      {/* Recently Viewed Products */}
+      <RecentlyViewed />
     </div>
   );
 }

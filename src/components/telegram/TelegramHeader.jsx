@@ -8,6 +8,8 @@ import {
   Sparkles,
   ShoppingBag,
   Heart,
+  Scale,
+  Rocket,
   X
 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
@@ -19,7 +21,7 @@ import { FlagUZ, FlagRU, FlagEN } from '../common/FlagIcons';
 export default function TelegramHeader() {
   const { language, setLanguage, t } = useLanguage();
   const { theme, toggleTheme } = useTheme();
-  const { cartCount, wishlistCount, products } = useStore();
+  const { cartCount, wishlistCount, compareCount, products } = useStore();
   const { tgUser, triggerHaptic } = useTelegramWebApp();
   const navigate = useNavigate();
 
@@ -116,6 +118,36 @@ export default function TelegramHeader() {
           >
             {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
           </button>
+
+          {/* Wishlist Link */}
+          <Link
+            to="/wishlist"
+            onClick={() => triggerHaptic('light')}
+            className="relative p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-rose-500 transition"
+            title="Sevimlilar"
+          >
+            <Heart className="w-4 h-4" />
+            {wishlistCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                {wishlistCount}
+              </span>
+            )}
+          </Link>
+
+          {/* Compare Link */}
+          <Link
+            to="/compare"
+            onClick={() => triggerHaptic('light')}
+            className="relative p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-indigo-600 transition"
+            title="Taqqoslash"
+          >
+            <Scale className="w-4 h-4" />
+            {compareCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-indigo-600 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                {compareCount}
+              </span>
+            )}
+          </Link>
         </div>
       </div>
 

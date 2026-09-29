@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { X, Star, ShoppingBag, Heart, Check, ShieldCheck, Truck, ArrowRight, Send } from 'lucide-react';
+import { X, Star, ShoppingBag, Heart, Check, ShieldCheck, Truck, ArrowRight, Send, Zap } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { formatPrice } from '../../utils/formatters';
 
 export default function QuickViewModal({ product, onClose }) {
-  const { addToCart, toggleWishlist, isInWishlist, postProductToTelegram } = useStore();
+  const { addToCart, toggleWishlist, isInWishlist, postProductToTelegram, openQuickBuy } = useStore();
   const { language, t } = useLanguage();
   const [selectedImg, setSelectedImg] = useState(product?.image || '');
   const [quantity, setQuantity] = useState(1);
@@ -46,6 +46,10 @@ export default function QuickViewModal({ product, onClose }) {
               src={selectedImg || product.image}
               alt={product.name}
               className="w-full h-full object-cover"
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = "https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format&fit=crop&w=800&q=80";
+              }}
             />
           </div>
 
@@ -99,8 +103,8 @@ export default function QuickViewModal({ product, onClose }) {
               {product.name}
             </h2>
 
-            {/* Price */}
-            <div className="flex items-baseline gap-3 mb-4">
+            {/* Price & Installment */}
+            <div className="flex flex-wrap items-baseline gap-3 mb-2">
               <span className="text-2xl font-extrabold text-indigo-600 dark:text-indigo-400">
                 {formatPrice(product.discountPrice || product.price)}
               </span>
@@ -109,6 +113,12 @@ export default function QuickViewModal({ product, onClose }) {
                   {formatPrice(product.price)}
                 </span>
               )}
+            </div>
+
+            {/* Installment Badge */}
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400 text-xs font-semibold mb-4 border border-amber-500/20">
+              <span>💳</span>
+              <span>Muddatli to'lov: oyiga {formatPrice(Math.round((product.discountPrice || product.price) / 12))} dan</span>
             </div>
 
             {/* Description */}
@@ -196,6 +206,18 @@ export default function QuickViewModal({ product, onClose }) {
                 <Send className="w-5 h-5" />
               </button>
             </div>
+
+            {/* Quick Buy Button */}
+            <button
+              onClick={() => {
+                openQuickBuy(product);
+                onClose();
+              }}
+              disabled={product.stock === 0}
+              className="w-full mb-3 py-2.5 px-4 rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 transition-all bg-amber-500 hover:bg-amber-600 active:scale-95 text-white shadow-md shadow-amber-500/20 disabled:opacity-50"
+            >
+              <Zap className="w-4 h-4 fill-white" /> {t('quickBuy.button')}
+            </button>
 
             {/* View Full Product Link */}
             <Link

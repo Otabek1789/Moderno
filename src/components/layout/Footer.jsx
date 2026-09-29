@@ -1,10 +1,16 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { ShoppingBag, Send, Phone, Mail, MapPin, Heart, ShieldCheck, CreditCard, Sparkles } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 
 export default function Footer() {
   const { t } = useLanguage();
+  const location = useLocation();
+
+  // Strictly NEVER render footer on Admin panel or Auth pages
+  if (location.pathname.toLowerCase().startsWith('/admin') || location.pathname === '/login' || location.pathname === '/register') {
+    return null;
+  }
 
   return (
     <footer className="bg-slate-900 text-slate-300 border-t border-slate-800 transition-colors pt-16 pb-12">

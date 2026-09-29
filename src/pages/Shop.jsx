@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   SlidersHorizontal,
@@ -9,8 +9,13 @@ import {
   Star,
   Check,
   ChevronDown,
-  X
+  X,
+  Sparkles,
+  ArrowDownWideNarrow,
+  ArrowUpWideNarrow,
+  Flame
 } from 'lucide-react';
+import sound from '../utils/soundFX';
 import { useStore } from '../context/StoreContext';
 import { useLanguage } from '../context/LanguageContext';
 import ProductCard from '../components/common/ProductCard';
@@ -29,8 +34,32 @@ export default function Shop() {
   const [inStockOnly, setInStockOnly] = useState(false);
   const [minRating, setMinRating] = useState(0);
   const [sortBy, setSortBy] = useState('newest');
+  const [isSortOpen, setIsSortOpen] = useState(false);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
+
+  const sortRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (sortRef.current && !sortRef.current.contains(event.target)) {
+        setIsSortOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const sortOptions = [
+    { id: 'newest', label: t('shop.sortNewest'), icon: Sparkles, color: 'text-amber-500' },
+    { id: 'price_asc', label: t('shop.sortPriceAsc'), icon: ArrowDownWideNarrow, color: 'text-emerald-500' },
+    { id: 'price_desc', label: t('shop.sortPriceDesc'), icon: ArrowUpWideNarrow, color: 'text-blue-500' },
+    { id: 'popular', label: t('shop.sortPopular'), icon: Flame, color: 'text-rose-500' },
+    { id: 'rating', label: t('shop.sortRating'), icon: Star, color: 'text-yellow-400' }
+  ];
+
+  const currentSortOption = sortOptions.find((o) => o.id === sortBy) || sortOptions[0];
+  const CurrentSortIcon = currentSortOption.icon;
 
   // Sync search param from URL
   useEffect(() => {
@@ -142,20 +171,77 @@ export default function Shop() {
             )}
           </button>
 
-          {/* Sort Dropdown */}
-          <div className="relative">
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="appearance-none pl-3.5 pr-8 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+          {/* Custom Modern Glassmorphic Sort Dropdown */}
+          <div ref={sortRef} className="relative">
+            <button
+              type="button"
+              onClick={() => {
+                sound.playClick();
+                setIsSortOpen(!isSortOpen);
+              }}
+              className={`px-3.5 py-2.5 rounded-2xl border text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-2.5 shadow-xs ${
+                isSortOpen
+                  ? 'border-indigo-500 bg-white dark:bg-slate-900 ring-2 ring-indigo-500/20 text-indigo-600 dark:text-indigo-400 shadow-md'
+                  : 'border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-850'
+              }`}
             >
-              <option value="newest">{t('shop.sortNewest')}</option>
-              <option value="price_asc">{t('shop.sortPriceAsc')}</option>
-              <option value="price_desc">{t('shop.sortPriceDesc')}</option>
-              <option value="popular">{t('shop.sortPopular')}</option>
-              <option value="rating">{t('shop.sortRating')}</option>
-            </select>
-            <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <CurrentSortIcon className={`w-4 h-4 shrink-0 ${currentSortOption.color}`} />
+              <span className="whitespace-nowrap font-bold">{currentSortOption.label}</span>
+              <ChevronDown
+                className={`w-4 h-4 text-slate-400 transition-transform duration-200 shrink-0 ${
+                  isSortOpen ? 'rotate-180 text-indigo-500' : ''
+                }`}
+              />
+            </button>
+
+            {/* Custom Glassmorphism Dropdown Menu */}
+            {isSortOpen && (
+              <div className="absolute right-0 top-full mt-2 w-60 sm:w-64 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden z-50 p-1.5 animate-fadeIn">
+                <div className="px-3 py-1.5 border-b border-slate-100 dark:border-slate-800 text-[10px] font-black uppercase text-slate-400 tracking-wider">
+                  Saralash usuli
+                </div>
+                <div className="space-y-1 mt-1">
+                  {sortOptions.map((opt) => {
+                    const Icon = opt.icon;
+                    const isSelected = sortBy === opt.id;
+
+                    return (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => {
+                          sound.playPop();
+                          setSortBy(opt.id);
+                          setIsSortOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition text-left ${
+                          isSelected
+                            ? 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 font-bold border border-indigo-500/20 shadow-xs'
+                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div
+                            className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+                              isSelected ? 'bg-indigo-500/15' : 'bg-slate-100 dark:bg-slate-800'
+                            }`}
+                          >
+                            <Icon className={`w-3.5 h-3.5 ${opt.color}`} />
+                          </div>
+                          <span className="truncate">{opt.label}</span>
+                        </div>
+
+                        {isSelected && (
+                          <div className="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                            <Check className="w-3 h-3 stroke-[3]" />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Clear Filters Button */}

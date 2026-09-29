@@ -14,8 +14,14 @@ import {
   Tv,
   ChevronRight,
   Star,
-  CheckCircle2
+  CheckCircle2,
+  Gamepad2,
+  Gift,
+  RefreshCw,
+  Swords,
+  Rocket
 } from 'lucide-react';
+import sound from '../utils/soundFX';
 import { useStore } from '../context/StoreContext';
 import { useLanguage } from '../context/LanguageContext';
 import ProductCard from '../components/common/ProductCard';
@@ -294,6 +300,126 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Interactive Studios & Entertainment Hub */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 border border-indigo-500/30 rounded-3xl p-6 sm:p-10 shadow-2xl relative overflow-hidden text-white">
+          <div className="absolute top-0 right-1/4 w-80 h-80 bg-purple-500/15 rounded-full blur-3xl pointer-events-none" />
+          
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4 relative z-10">
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-bold uppercase tracking-wider mb-2 border border-indigo-500/30">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-spin" />
+                <span>Moderno Eksklyuziv Imkoniyatlari</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
+                Interaktiv Studiyalar & <span className="bg-gradient-to-r from-amber-400 via-rose-400 to-indigo-400 bg-clip-text text-transparent">O'yinlar Maydoni</span>
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-xl">
+                O'z kompyuteringizni yig'ing, bepul sirli qutilarni oching, eski gadjetingizni baholang va flagmanlar jangini tomosha qiling!
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 relative z-10">
+            {/* 1. PC Builder */}
+            <Link
+              to="/builder"
+              onClick={() => sound.playClick()}
+              className="p-5 rounded-2xl bg-white/5 border border-white/10 hover:border-blue-500/60 hover:bg-white/10 transition group flex flex-col justify-between"
+            >
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white mb-3 shadow-lg group-hover:scale-110 transition-transform">
+                  <Gamepad2 className="w-6 h-6" />
+                </div>
+                <div className="flex items-center justify-between mb-1">
+                  <h3 className="font-bold text-base text-white">PC Builder Studio</h3>
+                  <span className="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">FPS 🎮</span>
+                </div>
+                <p className="text-xs text-slate-400">
+                  Moslik tekshiruvi, vatta hisoblagich va CS2, Cyberpunk FPS simulyatori.
+                </p>
+              </div>
+              <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs font-bold text-blue-400 group-hover:text-blue-300">
+                <span>Kompyuter yig'ish</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
+
+            {/* 2. Mystery Box */}
+            <Link
+              to="/mystery-box"
+              onClick={() => sound.playClick()}
+              className="p-5 rounded-2xl bg-white/5 border border-white/10 hover:border-amber-500/60 hover:bg-white/10 transition group flex flex-col justify-between"
+            >
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-amber-500 to-rose-500 flex items-center justify-center text-white mb-3 shadow-lg group-hover:scale-110 transition-transform">
+                  <Gift className="w-6 h-6" />
+                </div>
+                <div className="flex items-center justify-between mb-1">
+                  <h3 className="font-bold text-base text-white">Mystery Box</h3>
+                  <span className="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">Sovrin 🎁</span>
+                </div>
+                <p className="text-xs text-slate-400">
+                  Kunlik bepul quti, iPhone 15 Pro va PS5 Slim yutib olish imkoniyati.
+                </p>
+              </div>
+              <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs font-bold text-amber-400 group-hover:text-amber-300">
+                <span>Qutini ochish</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
+
+            {/* 3. Trade-In */}
+            <Link
+              to="/trade-in"
+              onClick={() => sound.playClick()}
+              className="p-5 rounded-2xl bg-white/5 border border-white/10 hover:border-emerald-500/60 hover:bg-white/10 transition group flex flex-col justify-between"
+            >
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center text-white mb-3 shadow-lg group-hover:scale-110 transition-transform">
+                  <RefreshCw className="w-6 h-6" />
+                </div>
+                <div className="flex items-center justify-between mb-1">
+                  <h3 className="font-bold text-base text-white">Trade-In Almashish</h3>
+                  <span className="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">15 daqiqa 🔄</span>
+                </div>
+                <p className="text-xs text-slate-400">
+                  Eski telefoningizni onlayn baholang va yangisiga faqat farqini to'lang.
+                </p>
+              </div>
+              <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs font-bold text-emerald-400 group-hover:text-emerald-300">
+                <span>Narxni hisoblash</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
+
+            {/* 4. Battle Arena */}
+            <Link
+              to="/battle"
+              onClick={() => sound.playClick()}
+              className="p-5 rounded-2xl bg-white/5 border border-white/10 hover:border-rose-500/60 hover:bg-white/10 transition group flex flex-col justify-between"
+            >
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-rose-600 to-purple-600 flex items-center justify-center text-white mb-3 shadow-lg group-hover:scale-110 transition-transform">
+                  <Swords className="w-6 h-6" />
+                </div>
+                <div className="flex items-center justify-between mb-1">
+                  <h3 className="font-bold text-base text-white">Gadget Battle</h3>
+                  <span className="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30">VS ⚔️</span>
+                </div>
+                <p className="text-xs text-slate-400">
+                  Flagmanlar yakkama-yak jangi: Ekran, Kamera, Batareya va Unumdorlik.
+                </p>
+              </div>
+              <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs font-bold text-rose-400 group-hover:text-rose-300">
+                <span>Jang maydoniga</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* 4. Top Selling Products */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
@@ -405,7 +531,7 @@ export default function Home() {
               ))}
             </div>
             <p className="text-sm text-slate-600 dark:text-slate-300 italic mb-4">
-              "iPhone 15 Pro Max buyurtma berdim. Toshkent ichida atigi 3 soatda bepul yetkazib berishdi. Hujjatlari, kafolati joyida. Rahmat!"
+              "iPhone 15 Pro Max buyurtma berdim. Toshkent ichida atigi yarim soatda bepul yetkazib berishdi. Hujjatlari, kafolati joyida. Rahmat!"
             </p>
             <div className="flex items-center gap-3">
               <img

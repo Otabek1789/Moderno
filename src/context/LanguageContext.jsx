@@ -20,8 +20,8 @@ export function LanguageProvider({ children }) {
     document.documentElement.lang = language;
   }, [language]);
 
-  // Translation helper: t('nav.home') or t('home.heroTitle1')
-  const t = (path, params = {}) => {
+  // Translation helper: t('nav.home') or t('auth.loginHeading', 'Kirish')
+  const t = (path, paramsOrFallback = {}) => {
     const keys = path.split('.');
     let current = translations[language];
 
@@ -35,7 +35,7 @@ export function LanguageProvider({ children }) {
           if (fallback && fallback[fKey] !== undefined) {
             fallback = fallback[fKey];
           } else {
-            return path;
+            return typeof paramsOrFallback === 'string' ? paramsOrFallback : path;
           }
         }
         current = fallback;
@@ -45,13 +45,19 @@ export function LanguageProvider({ children }) {
 
     if (typeof current === 'string') {
       let result = current;
-      Object.entries(params).forEach(([k, v]) => {
-        result = result.replace(new RegExp(`{${k}}`, 'g'), v);
-      });
+      if (paramsOrFallback && typeof paramsOrFallback === 'object') {
+        Object.entries(paramsOrFallback).forEach(([k, v]) => {
+          result = result.replace(new RegExp(`\\{${k}\\}`, 'g'), v);
+        });
+      }
       return result;
     }
 
-    return current || path;
+    if (current === undefined && typeof paramsOrFallback === 'string') {
+      return paramsOrFallback;
+    }
+
+    return current || (typeof paramsOrFallback === 'string' ? paramsOrFallback : path);
   };
 
   return (

@@ -12,30 +12,48 @@ import {
   Share2,
   Zap,
   CheckCircle2,
-  Send
+  Send,
+  Scale,
+  Rocket,
+  MessageSquare
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { useLanguage } from '../context/LanguageContext';
 import ProductCard from '../components/common/ProductCard';
+import InstallmentCalculator from '../components/common/InstallmentCalculator';
+import ProductReviews from '../components/common/ProductReviews';
+import RecentlyViewed from '../components/common/RecentlyViewed';
 import { formatPrice } from '../utils/formatters';
 
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { products, addToCart, toggleWishlist, isInWishlist, postProductToTelegram } = useStore();
+  const {
+    products,
+    addToCart,
+    toggleWishlist,
+    isInWishlist,
+    postProductToTelegram,
+    addToCompare,
+    isInCompare,
+    openQuickBuy,
+    addToRecentlyViewed,
+    getProductReviews
+  } = useStore();
   const { language, t } = useLanguage();
 
   const product = products.find((p) => String(p.id) === String(id));
   const [selectedImage, setSelectedImage] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
-  const [activeTab, setActiveTab] = useState('specs'); // 'specs' | 'desc' | 'delivery'
+  const [activeTab, setActiveTab] = useState('specs'); // 'specs' | 'desc' | 'delivery' | 'reviews'
 
   useEffect(() => {
     if (product) {
       setSelectedImage(product.image);
       setQuantity(1);
       window.scrollTo(0, 0);
+      addToRecentlyViewed(product.id);
     }
   }, [product, id]);
 
@@ -111,6 +129,10 @@ export default function ProductDetail() {
               src={selectedImage || product.image}
               alt={product.name}
               className="w-full h-full object-cover"
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = "https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format&fit=crop&w=800&q=80";
+              }}
             />
             {product.discountPrice && (
               <span className="absolute top-4 left-4 px-3 py-1 text-xs font-extrabold uppercase tracking-wider text-rose-700 bg-rose-100 dark:bg-rose-500/20 dark:text-rose-300 rounded-xl shadow-sm">
@@ -132,7 +154,15 @@ export default function ProductDetail() {
                       : 'border-transparent opacity-60 hover:opacity-100'
                   }`}
                 >
-                  <img src={img} alt="" className="w-full h-full object-cover" />
+                  <img
+                    src={img}
+                    alt=""
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = "https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format&fit=crop&w=800&q=80";
+                    }}
+                  />
                 </button>
               ))}
             </div>
@@ -214,90 +244,148 @@ export default function ProductDetail() {
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 pt-2">
+              {/* Action Buttons Area */}
+              <div className="space-y-3 pt-3">
+                {/* 1. Main Action Buttons: Add to Cart & Quick Buy */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {/* Add To Cart */}
+                  <button
+                    onClick={handleAddToCart}
+                    disabled={product.stock === 0}
+                    className={`w-full py-3.5 px-5 rounded-2xl font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 transition-all shadow-xl ${
+                      product.stock === 0
+                        ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
+                        : added
+                        ? 'bg-emerald-600 text-white shadow-emerald-600/30'
+                        : 'bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white shadow-indigo-600/25'
+                    }`}
+                  >
+                    {added ? (
+                      <>
+                        <Check className="w-5 h-5 animate-bounce shrink-0" />
+                        <span className="whitespace-nowrap">{t('cart.title')}ga qo'shildi!</span>
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingBag className="w-5 h-5 shrink-0" />
+                        <span className="whitespace-nowrap">{t('product.addToCart')}</span>
+                      </>
+                    )}
+                  </button>
+
+                  {/* 1-Click Fast Buy */}
+                  <button
+                    onClick={() => openQuickBuy(product)}
+                    disabled={product.stock === 0}
+                    className="w-full py-3.5 px-5 rounded-2xl font-bold text-sm sm:text-base bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 active:scale-95 transition disabled:opacity-50"
+                  >
+                    <Zap className="w-5 h-5 fill-white shrink-0" />
+                    <span className="whitespace-nowrap">1-Klikda xarid</span>
+                  </button>
+                </div>
+
+                {/* 2. Interactive Feature: Upgrader Card */}
                 <button
-                  onClick={handleAddToCart}
-                  disabled={product.stock === 0}
-                  className={`flex-1 py-4 px-6 rounded-2xl font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 transition-all shadow-xl ${
-                    product.stock === 0
-                      ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
-                      : added
-                      ? 'bg-emerald-600 text-white shadow-emerald-600/30'
-                      : 'bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white shadow-indigo-600/25'
-                  }`}
+                  onClick={() => navigate(`/upgrader?sourceId=${product.id}`)}
+                  className="w-full p-3.5 rounded-2xl bg-gradient-to-r from-purple-900/40 via-indigo-900/40 to-slate-900/60 hover:from-purple-900/60 hover:to-indigo-900/60 border border-purple-500/30 text-white flex items-center justify-between transition-all group shadow-sm active:scale-[0.99]"
                 >
-                  {added ? (
-                    <>
-                      <Check className="w-5 h-5 animate-bounce" />
-                      <span>{t('cart.title')}ga qo'shildi!</span>
-                    </>
-                  ) : (
-                    <>
-                      <ShoppingBag className="w-5 h-5" />
-                      <span>{t('product.addToCart')}</span>
-                    </>
-                  )}
+                  <div className="flex items-center gap-3">
+                    <span className="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+                      <Rocket className="w-4 h-4" />
+                    </span>
+                    <div className="text-left">
+                      <div className="text-xs sm:text-sm font-extrabold text-white flex items-center gap-2">
+                        <span>Upgrader orqali almashtirish</span>
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-black bg-gradient-to-r from-purple-500 to-indigo-500 text-white">HOT</span>
+                      </div>
+                      <div className="text-[11px] text-purple-200/80 line-clamp-1">
+                        Ushbu tovarni qimmatroq mahsulotga upgrade qiling
+                      </div>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-purple-400 group-hover:translate-x-1 transition-transform shrink-0" />
                 </button>
 
-                <button
-                  onClick={handleBuyNow}
-                  disabled={product.stock === 0}
-                  className="sm:w-auto px-6 py-4 rounded-2xl font-bold text-sm sm:text-base bg-amber-500 hover:bg-amber-600 text-white flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 active:scale-95 transition"
-                >
-                  <Zap className="w-4 h-4 fill-white" />
-                  <span>{t('product.buyNow')}</span>
-                </button>
+                {/* 3. Utility Row: Wishlist, Compare, Telegram */}
+                <div className="flex items-center gap-2.5 pt-1">
+                  {/* Wishlist */}
+                  <button
+                    onClick={() => toggleWishlist(product)}
+                    className={`flex-1 py-3 px-3.5 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition ${
+                      inWishlist
+                        ? 'bg-rose-50 border-rose-200 text-rose-600 dark:bg-rose-950/40 dark:border-rose-900'
+                        : 'border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    <Heart className={`w-4 h-4 shrink-0 ${inWishlist ? 'fill-current text-rose-500' : ''}`} />
+                    <span className="whitespace-nowrap">{inWishlist ? 'Sevimlilarda' : 'Sevimlilar'}</span>
+                  </button>
 
-                <button
-                  onClick={() => toggleWishlist(product)}
-                  className={`p-4 rounded-2xl border transition-all ${
-                    inWishlist
-                      ? 'bg-rose-50 border-rose-200 text-rose-500 dark:bg-rose-950/40 dark:border-rose-900'
-                      : 'border-slate-200 dark:border-slate-800 text-slate-500 hover:text-rose-500'
-                  }`}
-                  title="Sevimlilarga qo'shish"
-                >
-                  <Heart className={`w-5 h-5 ${inWishlist ? 'fill-current' : ''}`} />
-                </button>
+                  {/* Compare */}
+                  <button
+                    onClick={() => addToCompare(product)}
+                    className={`flex-1 py-3 px-3.5 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition ${
+                      isInCompare(product.id)
+                        ? 'bg-indigo-50 border-indigo-200 text-indigo-600 dark:bg-indigo-950/40 dark:border-indigo-900'
+                        : 'border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    <Scale className="w-4 h-4 shrink-0" />
+                    <span className="whitespace-nowrap">{isInCompare(product.id) ? 'Taqqoslangan' : 'Taqqoslash'}</span>
+                  </button>
 
-                <button
-                  onClick={() => postProductToTelegram(product)}
-                  className="sm:w-auto px-5 py-4 rounded-2xl font-bold text-sm bg-sky-500/10 hover:bg-sky-500/20 text-sky-600 dark:text-sky-400 border border-sky-500/30 flex items-center justify-center gap-2 transition active:scale-95"
-                  title="Mahsulotni Telegram botga yuborish"
-                >
-                  <Send className="w-4 h-4" />
-                  <span className="hidden sm:inline">Telegramga</span>
-                </button>
+                  {/* Telegram */}
+                  <button
+                    onClick={() => postProductToTelegram(product)}
+                    className="p-3 rounded-xl border border-sky-200 dark:border-sky-800/80 bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400 hover:bg-sky-100 transition shrink-0"
+                    title="Telegram kanal/botga yuborish"
+                  >
+                    <Send className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
 
             {/* Quick Benefits */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-6 border-t border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300">
-              <div className="flex items-center gap-2">
-                <Truck className="w-4 h-4 text-indigo-500" />
-                <span>Tezkor yetkazib berish</span>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 py-5 my-6 border-y border-slate-200/80 dark:border-slate-800/80 text-xs text-slate-600 dark:text-slate-300 bg-slate-50/50 dark:bg-slate-900/30 rounded-2xl px-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-500 flex items-center justify-center shrink-0">
+                  <Truck className="w-4 h-4" />
+                </div>
+                <span className="font-medium">Tezkor yetkazib berish</span>
               </div>
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                <span>12 oy rasmiy kafolat</span>
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
+                  <ShieldCheck className="w-4 h-4" />
+                </div>
+                <span className="font-medium">12 oy rasmiy kafolat</span>
               </div>
-              <div className="flex items-center gap-2">
-                <RotateCcw className="w-4 h-4 text-amber-500" />
-                <span>14 kun almashtirish</span>
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
+                  <RotateCcw className="w-4 h-4" />
+                </div>
+                <span className="font-medium">14 kun almashtirish</span>
               </div>
+            </div>
+
+            {/* Installment Calculator Widget */}
+            <div className="pt-2">
+              <InstallmentCalculator
+                price={product.discountPrice || product.price}
+                onApply={() => openQuickBuy(product)}
+              />
             </div>
 
           </div>
         </div>
       </div>
 
-      {/* Tabs: Specifications & Description & Delivery */}
+      {/* Tabs: Specifications & Description & Delivery & Reviews */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 sm:p-10 shadow-sm">
-        <div className="flex border-b border-slate-200 dark:border-slate-800 gap-6 mb-6">
+        <div className="flex border-b border-slate-200 dark:border-slate-800 gap-4 sm:gap-6 mb-6 overflow-x-auto">
           <button
             onClick={() => setActiveTab('specs')}
-            className={`pb-3 text-sm sm:text-base font-bold transition border-b-2 ${
+            className={`pb-3 text-sm sm:text-base font-bold transition border-b-2 whitespace-nowrap ${
               activeTab === 'specs'
                 ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400'
                 : 'border-transparent text-slate-400 hover:text-slate-600'
@@ -307,7 +395,7 @@ export default function ProductDetail() {
           </button>
           <button
             onClick={() => setActiveTab('desc')}
-            className={`pb-3 text-sm sm:text-base font-bold transition border-b-2 ${
+            className={`pb-3 text-sm sm:text-base font-bold transition border-b-2 whitespace-nowrap ${
               activeTab === 'desc'
                 ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400'
                 : 'border-transparent text-slate-400 hover:text-slate-600'
@@ -316,8 +404,21 @@ export default function ProductDetail() {
             {t('product.description')}
           </button>
           <button
+            onClick={() => setActiveTab('reviews')}
+            className={`pb-3 text-sm sm:text-base font-bold transition border-b-2 whitespace-nowrap flex items-center gap-2 ${
+              activeTab === 'reviews'
+                ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400'
+                : 'border-transparent text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            <span>{t('reviews.title')}</span>
+            <span className="px-2 py-0.5 rounded-full text-xs bg-indigo-50 dark:bg-indigo-950 text-indigo-600 font-bold">
+              {getProductReviews(product.id).length}
+            </span>
+          </button>
+          <button
             onClick={() => setActiveTab('delivery')}
-            className={`pb-3 text-sm sm:text-base font-bold transition border-b-2 ${
+            className={`pb-3 text-sm sm:text-base font-bold transition border-b-2 whitespace-nowrap ${
               activeTab === 'delivery'
                 ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400'
                 : 'border-transparent text-slate-400 hover:text-slate-600'
@@ -347,6 +448,10 @@ export default function ProductDetail() {
               Har bir mahsulot qadoqlanishidan oldin to'liq sifat nazoratidan o'tkaziladi va rasmiy kafolat taloniga ega bo'ladi.
             </p>
           </div>
+        )}
+
+        {activeTab === 'reviews' && (
+          <ProductReviews productId={product.id} productName={product.name} />
         )}
 
         {activeTab === 'delivery' && (
@@ -380,6 +485,9 @@ export default function ProductDetail() {
           </div>
         </section>
       )}
+
+      {/* Recently Viewed Products */}
+      <RecentlyViewed currentProductId={product.id} />
 
     </div>
   );

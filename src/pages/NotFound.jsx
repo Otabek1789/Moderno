@@ -13,17 +13,17 @@ export default function NotFound() {
       </div>
       <h1 className="text-6xl font-black text-indigo-600 dark:text-indigo-400">404</h1>
       <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">
-        Sahifa topilmadi
+        {t('notFound.title')}
       </h2>
       <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-        Siz qidirayotgan sahifa ko'chirilgan, o'chirilgan yoki manzili noto'g'ri kiritilgan bo'lishi mumkin.
+        {t('notFound.desc')}
       </p>
       <Link
         to="/"
         className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-xl shadow-indigo-600/30 transition"
       >
         <ArrowLeft className="w-4 h-4" />
-        <span>{t('nav.home')}ga qaytish</span>
+        <span>{t('notFound.backHome')}</span>
       </Link>
     </div>
   );

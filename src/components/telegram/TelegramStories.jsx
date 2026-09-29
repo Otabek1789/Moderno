@@ -15,7 +15,7 @@ const STORIES = [
   {
     id: 2,
     title: 'Smartfonlar',
-    subtitle: 'iPhone 15 & 16 seriyasi',
+    subtitle: 'iPhone 15 Pro Max & yangilar',
     icon: Zap,
     color: 'from-indigo-600 to-violet-500',
     category: 'smartphones'

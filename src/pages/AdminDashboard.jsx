@@ -27,11 +27,17 @@ import {
   ChevronRight,
   TrendingUp,
   ArrowUpRight,
-  ExternalLink
+  ExternalLink,
+  Users,
+  Download,
+  FileSpreadsheet,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useTheme } from '../context/ThemeContext';
 import { formatPrice, formatDate } from '../utils/formatters';
 import { sendTelegramMessage, setTelegramMenuButton } from '../utils/telegram';
 import {
@@ -40,6 +46,7 @@ import {
   WeeklyBarsChart,
   PipelineAndStockAlerts
 } from '../components/admin/AdminCharts';
+import AnimatedCounter from '../components/admin/AnimatedCounter';
 
 export default function AdminDashboard() {
   const {
@@ -58,8 +65,9 @@ export default function AdminDashboard() {
     setTelegramModal
   } = useStore();
 
-  const { user, isAdmin, quickDemoLogin, logout } = useAuth();
-  const { language, t } = useLanguage();
+  const { user, isAdmin, logout } = useAuth();
+  const { language, setLanguage, t } = useLanguage();
+  const { theme, toggleTheme } = useTheme();
 
   // Active navigation section in Sidebar
   const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard' | 'products' | 'orders' | 'analytics' | 'telegram' | 'promos'
@@ -102,22 +110,22 @@ export default function AdminDashboard() {
   // Non-admin fallback view
   if (!isAdmin) {
     return (
-      <div className="max-w-md mx-auto px-4 py-20 text-center">
-        <div className="w-16 h-16 rounded-3xl bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto mb-4">
+      <div className="max-w-md mx-auto px-4 py-24 text-center">
+        <div className="w-16 h-16 rounded-3xl bg-rose-500/10 text-rose-500 flex items-center justify-center mx-auto mb-4">
           <ShieldAlert className="w-8 h-8" />
         </div>
         <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
           Administrator Ruxsati Talab Qilinadi
         </h2>
-        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-6">
-          Ushbu boshqaruv panelini sinash uchun tezkor admin rejimiga o'ting.
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">
+          Ushbu boshqaruv paneli faqatgina <strong>otabek1789@gmail.com</strong> administratori uchun ochiq. Tizimga admin pochtasi va tasdiqlash kodi orqali kiring.
         </p>
-        <button
-          onClick={() => quickDemoLogin('admin')}
-          className="px-6 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm shadow-xl shadow-amber-500/25 transition active:scale-95"
+        <Link
+          to="/login"
+          className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-xl shadow-indigo-600/25 transition active:scale-95"
         >
-          🔑 Admin Hisobiga O'tish
-        </button>
+          🔐 Admin sifatida tizimga kirish
+        </Link>
       </div>
     );
   }
@@ -274,11 +282,80 @@ Telegram Bot integratsiyasi muvaffaqiyatli ishlamoqda! ✅
     setNewPromo({ code: '', type: 'percent', value: 10, desc: '' });
   };
 
+  // --- CSV Export Handlers ---
+  const exportOrdersToCSV = () => {
+    const headers = ["Buyurtma ID", "Mijoz", "Telefon", "Manzil", "Jami Summa (UZS)", "To'lov turi", "Holati", "Sana"];
+    const rows = orders.map((o) => [
+      `#${o.id}`,
+      `"${(o.customerName || '').replace(/"/g, '""')}"`,
+      `"${o.phone || ''}"`,
+      `"${(o.address || '').replace(/"/g, '""')}"`,
+      o.totalAmount,
+      `"${o.paymentMethod || ''}"`,
+      `"${o.status || ''}"`,
+      `"${new Date(o.createdAt).toLocaleString()}"`
+    ]);
+    const csvContent = "\uFEFF" + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Moderno_Buyurtmalar_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const exportProductsToCSV = () => {
+    const headers = ["ID", "Nomi", "Kategoriya", "Narxi (UZS)", "Chegirma Narxi", "Omborda", "Reyting"];
+    const rows = products.map((p) => [
+      p.id,
+      `"${(p.name || '').replace(/"/g, '""')}"`,
+      `"${p.category || ''}"`,
+      p.price,
+      p.discountPrice || '',
+      p.stock,
+      p.rating
+    ]);
+    const csvContent = "\uFEFF" + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Moderno_Mahsulotlar_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // --- Derive CRM Customers from Orders ---
+  const customersMap = {};
+  orders.forEach((o) => {
+    const key = (o.phone || o.customerName || 'Mijoz').trim();
+    if (!customersMap[key]) {
+      customersMap[key] = {
+        name: o.customerName || 'Noma\'lum',
+        phone: o.phone || '—',
+        address: o.address || '—',
+        ordersCount: 0,
+        totalSpent: 0,
+        lastOrderDate: o.createdAt,
+        status: 'active'
+      };
+    }
+    customersMap[key].ordersCount += 1;
+    customersMap[key].totalSpent += o.totalAmount || 0;
+    if (new Date(o.createdAt) > new Date(customersMap[key].lastOrderDate)) {
+      customersMap[key].lastOrderDate = o.createdAt;
+      customersMap[key].address = o.address;
+    }
+  });
+  const customersList = Object.values(customersMap);
+
   // Sidebar Menu Items
   const sidebarNav = [
     { id: 'dashboard', label: "Dashboard & Grafiklar", icon: LayoutDashboard },
     { id: 'products', label: "Mahsulotlar (CRUD)", icon: Package, badge: products.length },
     { id: 'orders', label: "Buyurtmalar", icon: ShoppingBag, badge: orders.length },
+    { id: 'customers', label: "Mijozlar (CRM)", icon: Users, badge: customersList.length },
     { id: 'analytics', label: "Savdo Tahlili", icon: BarChart3 },
     { id: 'telegram', label: "Telegram Bot & App", icon: Send },
     { id: 'promos', label: "Promokodlar", icon: Tag, badge: promoCodes.length }
@@ -376,19 +453,29 @@ Telegram Bot integratsiyasi muvaffaqiyatli ishlamoqda! ✅
 
         {/* Bottom Sidebar: Admin Profile & Site link */}
         <div className="p-4 border-t border-slate-200/80 dark:border-slate-800/80 bg-slate-50/60 dark:bg-slate-950/40 space-y-3">
-          <div className="flex items-center gap-3 px-2">
-            <img
-              src={user.avatar}
-              alt={user.name}
-              className="w-10 h-10 rounded-2xl object-cover ring-2 ring-indigo-500/30"
-            />
+          <Link
+            to="/profile"
+            className="flex items-center gap-3 px-2 py-1 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-800/80 transition group"
+            title="Profil sozlamalari va rasmni o'zgartirish"
+          >
+            {user.avatar ? (
+              <img
+                src={user.avatar}
+                alt={user.name}
+                className="w-10 h-10 rounded-2xl object-cover ring-2 ring-indigo-500/30 shrink-0"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center text-white font-black text-sm shrink-0 shadow-xs ring-2 ring-indigo-500/30">
+                {(user.name || user.email || 'A').charAt(0).toUpperCase()}
+              </div>
+            )}
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
+              <p className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate group-hover:text-indigo-600 transition-colors">
                 {user.name}
               </p>
               <p className="text-[11px] text-amber-500 font-semibold">👑 Administrator</p>
             </div>
-          </div>
+          </Link>
 
           <div className="grid grid-cols-2 gap-2 pt-1">
             <Link
@@ -435,7 +522,23 @@ Telegram Bot integratsiyasi muvaffaqiyatli ishlamoqda! ✅
             </h1>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center flex-wrap gap-2.5">
+            <button
+              onClick={exportOrdersToCSV}
+              className="px-3.5 py-2 text-xs font-semibold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition flex items-center gap-1.5 shadow-sm active:scale-95"
+              title="Buyurtmalar ro'yxatini Excel/CSV formatida yuklab olish"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Buyurtmalar CSV</span>
+            </button>
+            <button
+              onClick={exportProductsToCSV}
+              className="px-3.5 py-2 text-xs font-semibold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white transition flex items-center gap-1.5 shadow-sm active:scale-95"
+              title="Mahsulotlar ro'yxatini Excel/CSV formatida yuklab olish"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5" />
+              <span>Mahsulotlar CSV</span>
+            </button>
             <button
               onClick={resetProductsToDefault}
               className="px-3.5 py-2 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition flex items-center gap-1.5"
@@ -452,6 +555,24 @@ Telegram Bot integratsiyasi muvaffaqiyatli ishlamoqda! ✅
               <Send className="w-3.5 h-3.5" />
               <span>@nekitekibeki_bot</span>
             </a>
+
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
+              title="Mavzuni o'zgartirish"
+            >
+              {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4 text-amber-400" />}
+            </button>
+
+            {/* Back to Store */}
+            <Link
+              to="/"
+              className="px-3.5 py-2 text-xs font-bold rounded-xl border border-indigo-200 dark:border-indigo-900/60 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition flex items-center gap-1.5"
+            >
+              <Store className="w-3.5 h-3.5" />
+              <span>Do'konga qaytish</span>
+            </Link>
           </div>
         </div>
 
@@ -460,16 +581,37 @@ Telegram Bot integratsiyasi muvaffaqiyatli ishlamoqda! ✅
         {/* ======================================================== */}
         {activeTab === 'dashboard' && (
           <div className="space-y-8 animate-fadeIn">
-            {/* KPI Metrics Strip */}
+            {/* Live Indicator Banner */}
+            <div className="flex items-center justify-between px-4 py-2.5 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200/60 dark:border-indigo-800/60 text-xs text-indigo-700 dark:text-indigo-300">
+              <div className="flex items-center gap-2">
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                </span>
+                <span className="font-bold">Jonli Tizim Statistikasi</span>
+                <span className="text-slate-400 hidden sm:inline">•</span>
+                <span className="text-slate-500 dark:text-slate-400 hidden sm:inline">Ma'lumotlar avtomatik yangilanmoqda</span>
+              </div>
+              <span className="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 bg-white/80 dark:bg-slate-900/80 px-2.5 py-0.5 rounded-lg shadow-xs">
+                Real-Time KPI
+              </span>
+            </div>
+
+            {/* KPI Metrics Strip with Staggered Entrance & Count-Up Animations */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
+              
+              {/* Card 1: Revenue */}
+              <div
+                className="animate-stat-card p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex items-center gap-4 group"
+                style={{ animationDelay: '0ms' }}
+              >
+                <div className="w-13 h-13 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300 shadow-xs">
                   <DollarSign className="w-6 h-6" />
                 </div>
-                <div>
+                <div className="min-w-0 flex-1">
                   <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Umumiy Tushum</p>
-                  <p className="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100 mt-0.5">
-                    {formatPrice(totalRevenue)}
+                  <p className="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100 mt-0.5 truncate">
+                    <AnimatedCounter value={totalRevenue} formatter={formatPrice} />
                   </p>
                   <span className="text-[11px] text-emerald-500 font-bold flex items-center gap-0.5 mt-0.5">
                     <ArrowUpRight className="w-3 h-3" /> +18.4% o'sish
@@ -477,14 +619,18 @@ Telegram Bot integratsiyasi muvaffaqiyatli ishlamoqda! ✅
                 </div>
               </div>
 
-              <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center shrink-0">
+              {/* Card 2: Orders */}
+              <div
+                className="animate-stat-card p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex items-center gap-4 group"
+                style={{ animationDelay: '100ms' }}
+              >
+                <div className="w-13 h-13 rounded-2xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-indigo-500 group-hover:text-white transition-all duration-300 shadow-xs">
                   <ShoppingBag className="w-6 h-6" />
                 </div>
-                <div>
+                <div className="min-w-0 flex-1">
                   <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Jami Buyurtmalar</p>
-                  <p className="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100 mt-0.5">
-                    {totalOrders} ta
+                  <p className="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100 mt-0.5 truncate">
+                    <AnimatedCounter value={totalOrders} suffix=" ta" />
                   </p>
                   <span className="text-[11px] text-indigo-500 font-bold flex items-center gap-0.5 mt-0.5">
                     <ArrowUpRight className="w-3 h-3" /> +12 ta bu hafta
@@ -492,14 +638,18 @@ Telegram Bot integratsiyasi muvaffaqiyatli ishlamoqda! ✅
                 </div>
               </div>
 
-              <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-500 flex items-center justify-center shrink-0">
+              {/* Card 3: AOV */}
+              <div
+                className="animate-stat-card p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex items-center gap-4 group"
+                style={{ animationDelay: '200ms' }}
+              >
+                <div className="w-13 h-13 rounded-2xl bg-purple-500/10 text-purple-500 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-purple-500 group-hover:text-white transition-all duration-300 shadow-xs">
                   <Package className="w-6 h-6" />
                 </div>
-                <div>
+                <div className="min-w-0 flex-1">
                   <p className="text-xs font-bold uppercase tracking-wider text-slate-400">O'rtacha Chek (AOV)</p>
-                  <p className="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100 mt-0.5">
-                    {formatPrice(avgOrderValue)}
+                  <p className="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100 mt-0.5 truncate">
+                    <AnimatedCounter value={avgOrderValue} formatter={formatPrice} />
                   </p>
                   <span className="text-[11px] text-purple-500 font-bold flex items-center gap-0.5 mt-0.5">
                     <Sparkles className="w-3 h-3" /> Yuqori samaradorlik
@@ -507,14 +657,18 @@ Telegram Bot integratsiyasi muvaffaqiyatli ishlamoqda! ✅
                 </div>
               </div>
 
-              <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
+              {/* Card 4: Coupons */}
+              <div
+                className="animate-stat-card p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex items-center gap-4 group"
+                style={{ animationDelay: '300ms' }}
+              >
+                <div className="w-13 h-13 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-amber-500 group-hover:text-white transition-all duration-300 shadow-xs">
                   <Tag className="w-6 h-6" />
                 </div>
-                <div>
+                <div className="min-w-0 flex-1">
                   <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Faol Promokodlar</p>
-                  <p className="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100 mt-0.5">
-                    {activeCoupons} ta faol
+                  <p className="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100 mt-0.5 truncate">
+                    <AnimatedCounter value={activeCoupons} suffix=" ta faol" />
                   </p>
                   <span className="text-[11px] text-amber-500 font-bold flex items-center gap-0.5 mt-0.5">
                     UZBEK2025, WELCOME10...
@@ -732,6 +886,115 @@ Telegram Bot integratsiyasi muvaffaqiyatli ishlamoqda! ✅
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+        )}
+
+        {/* ======================================================== */}
+        {/* TAB: CUSTOMERS (CRM) */}
+        {/* ======================================================== */}
+        {activeTab === 'customers' && (
+          <div className="space-y-6 animate-fadeIn">
+            {/* KPI Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 flex items-center justify-center font-bold">
+                  <Users className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-xs text-slate-400 font-semibold uppercase">Jami Mijozlar</p>
+                  <h4 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100">{customersList.length} ta</h4>
+                </div>
+              </div>
+              <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 flex items-center justify-center font-bold">
+                  <DollarSign className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-xs text-slate-400 font-semibold uppercase">O'rtacha Chek</p>
+                  <h4 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100">{formatPrice(avgOrderValue)}</h4>
+                </div>
+              </div>
+              <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 flex items-center justify-center font-bold">
+                  <ShoppingBag className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-xs text-slate-400 font-semibold uppercase">Jami Buyurtmalar</p>
+                  <h4 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100">{orders.length} ta</h4>
+                </div>
+              </div>
+            </div>
+
+            {/* Customers Table */}
+            <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm">
+              <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h3 className="font-bold text-base text-slate-900 dark:text-slate-100">
+                    Mijozlar Bazasi (CRM)
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Xarid qilgan mijozlarning telefon raqamlari, buyurtmalar soni va faolligi
+                  </p>
+                </div>
+                <button
+                  onClick={exportOrdersToCSV}
+                  className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center gap-1.5 self-start sm:self-auto shadow-sm"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Mijozlar hisobotini yuklash</span>
+                </button>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs sm:text-sm">
+                  <thead className="bg-slate-50 dark:bg-slate-800/40 text-slate-400 font-bold uppercase text-[10px] tracking-wider border-b border-slate-100 dark:border-slate-800">
+                    <tr>
+                      <th className="p-4">Mijoz Ismi</th>
+                      <th className="p-4">Telefon</th>
+                      <th className="p-4">Manzil</th>
+                      <th className="p-4 text-center">Buyurtmalar</th>
+                      <th className="p-4">Jami Sarflangan</th>
+                      <th className="p-4">Oxirgi Xarid</th>
+                      <th className="p-4 text-center">Holati</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    {customersList.map((c, idx) => (
+                      <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition">
+                        <td className="p-4 font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 text-white font-bold flex items-center justify-center text-xs">
+                            {c.name.charAt(0).toUpperCase()}
+                          </div>
+                          <span>{c.name}</span>
+                        </td>
+                        <td className="p-4 font-mono font-medium text-slate-600 dark:text-slate-300">
+                          {c.phone}
+                        </td>
+                        <td className="p-4 text-slate-500 dark:text-slate-400 max-w-xs truncate">
+                          {c.address}
+                        </td>
+                        <td className="p-4 text-center">
+                          <span className="px-2.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 font-bold text-xs">
+                            {c.ordersCount} ta
+                          </span>
+                        </td>
+                        <td className="p-4 font-extrabold text-indigo-600 dark:text-indigo-400">
+                          {formatPrice(c.totalSpent)}
+                        </td>
+                        <td className="p-4 text-slate-400 text-xs">
+                          {formatDate(c.lastOrderDate)}
+                        </td>
+                        <td className="p-4 text-center">
+                          <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-600">
+                            Faol mijoz
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}

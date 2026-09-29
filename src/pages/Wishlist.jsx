@@ -68,6 +68,29 @@ export default function Wishlist() {
         </div>
       </div>
 
+      {/* Upgrader Callout Banner */}
+      <div className="mb-8 p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-purple-950/80 via-indigo-950/80 to-slate-900 border border-purple-500/30 text-white flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl bg-purple-500/20 text-purple-400 flex items-center justify-center shrink-0">
+            <Heart className="w-6 h-6 text-rose-400 fill-rose-400 animate-pulse" />
+          </div>
+          <div>
+            <h4 className="font-extrabold text-sm sm:text-base text-white">
+              Sevimlilaringizni Upgraderda sinab ko'ring! 🚀
+            </h4>
+            <p className="text-xs text-purple-200">
+              Ushbu tovarlarni qo'yib, yanada qimmatroq va orzuingizdagi tovarlarga upgrade qilishingiz mumkin!
+            </p>
+          </div>
+        </div>
+        <Link
+          to="/upgrader"
+          className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-bold text-xs sm:text-sm whitespace-nowrap shadow-lg shadow-purple-500/25 active:scale-95 transition"
+        >
+          Upgraderga o'tish →
+        </Link>
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {wishlist.map((item) => (
           <ProductCard key={item.id} product={item} />
