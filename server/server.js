@@ -112,7 +112,7 @@ export function verifyOtpCode(email, code) {
 }
 
 // Routes
-app.post('/api/send-code', async (req, res) => {
+const handleSendCode = async (req, res) => {
   try {
     const result = await sendOtpEmail(req.body.email);
     res.json(result);
@@ -120,9 +120,9 @@ app.post('/api/send-code', async (req, res) => {
     console.error('Xat yuborishda xatolik:', error);
     res.status(500).json({ success: false, error: error.message || "Xat yuborishda xatolik yuz berdi." });
   }
-});
+};
 
-app.post('/api/verify-code', (req, res) => {
+const handleVerifyCode = (req, res) => {
   const { email, code } = req.body;
   const result = verifyOtpCode(email, code);
   if (result.success) {
@@ -130,14 +130,31 @@ app.post('/api/verify-code', (req, res) => {
   } else {
     res.status(400).json(result);
   }
+};
+
+// Route handlers - supports local development and Vercel serverless functions
+app.post(['/api/send-code', '/send-code'], handleSendCode);
+app.post(['/api/verify-code', '/verify-code'], handleVerifyCode);
+
+app.get(['/api/health', '/health', '/api', '/'], (req, res) => {
+  res.json({
+    status: 'ok',
+    server: 'MODERNO Express Backend (Local & Vercel)',
+    timestamp: new Date().toISOString()
+  });
 });
 
 const isDirectRun = process.argv[1] && (process.argv[1].endsWith('server.js') || process.argv[1].endsWith('server.cjs'));
-if (isDirectRun) {
+if (isDirectRun || !process.env.VERCEL) {
   const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => {
-    console.log(`Backend server ishga tushdi: http://localhost:${PORT}`);
-  });
+  // If not already listening or running locally
+  try {
+    app.listen(PORT, () => {
+      console.log(`Backend server ishga tushdi: http://localhost:${PORT}`);
+    });
+  } catch (err) {
+    // Port might already be open
+  }
 }
 
 export default app;

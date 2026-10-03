@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useParams, useLocation } from 'react-router-dom';
 import {
   ShieldAlert,
   DollarSign,
@@ -32,8 +32,11 @@ import {
   Download,
   FileSpreadsheet,
   Sun,
-  Moon
+  Moon,
+  Globe,
+  ChevronDown
 } from 'lucide-react';
+import { FlagUZ, FlagRU, FlagEN } from '../components/common/FlagIcons';
 import { useStore } from '../context/StoreContext';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -47,6 +50,96 @@ import {
   PipelineAndStockAlerts
 } from '../components/admin/AdminCharts';
 import AnimatedCounter from '../components/admin/AnimatedCounter';
+
+const adminTranslations = {
+  uz: {
+    consoleTitle: "Admin Console",
+    dashboard: "Dashboard & Grafiklar",
+    products: "Mahsulotlar (CRUD)",
+    orders: "Buyurtmalar",
+    customers: "Mijozlar (CRM)",
+    analytics: "Savdo Tahlili",
+    telegram: "Telegram Bot & App",
+    promos: "Promokodlar",
+    totalRevenue: "Umumiy Tushum",
+    totalOrders: "Jami Buyurtmalar",
+    totalProducts: "Mahsulotlar Soni",
+    activePromos: "Faol Promokodlar",
+    avgOrder: "O'rtacha Chek",
+    activeCustomers: "Faol Xaridorlar",
+    ordersCSV: "Buyurtmalar CSV",
+    productsCSV: "Mahsulotlar CSV",
+    resetCatalog: "Katalogni Qayta O'rnatish",
+    backToStore: "Do'konga Qaytish",
+    logout: "Chiqish",
+    addProduct: "Yangi Mahsulot",
+    editProduct: "Mahsulotni Tahrirlash",
+    deleteConfirm: "O'chirishni Tasdiqlash",
+    searchPlaceholder: "Mahsulot nomi yoki toifasi bo'yicha qidirish...",
+    revenueDynamics: "Daromad Dinamikasi",
+    categoryShare: "Kategoriyalar Ulushi",
+    weeklyVolume: "Haftalik Buyurtmalar",
+    stockAlerts: "Ombor Nazorati"
+  },
+  ru: {
+    consoleTitle: "Панель Управления",
+    dashboard: "Панель & Графики",
+    products: "Товары (CRUD)",
+    orders: "Заказы",
+    customers: "Клиенты (CRM)",
+    analytics: "Анализ Продаж",
+    telegram: "Телеграм Бот & App",
+    promos: "Промокоды",
+    totalRevenue: "Общая Выручка",
+    totalOrders: "Всего Заказов",
+    totalProducts: "Количество Товаров",
+    activePromos: "Активные Промокоды",
+    avgOrder: "Средний Чек",
+    activeCustomers: "Активные Клиенты",
+    ordersCSV: "Заказы CSV",
+    productsCSV: "Товары CSV",
+    resetCatalog: "Сбросить Каталог",
+    backToStore: "В Магазин",
+    logout: "Выйти",
+    addProduct: "Новый Товар",
+    editProduct: "Редактировать Товар",
+    deleteConfirm: "Подтвердить Удаление",
+    searchPlaceholder: "Поиск по названию или категории...",
+    revenueDynamics: "Динамика Доходов",
+    categoryShare: "Доля Категорий",
+    weeklyVolume: "Заказы по Дням",
+    stockAlerts: "Складской Учет"
+  },
+  en: {
+    consoleTitle: "Admin Console",
+    dashboard: "Dashboard & Charts",
+    products: "Products (CRUD)",
+    orders: "Orders Management",
+    customers: "Customers (CRM)",
+    analytics: "Sales Analytics",
+    telegram: "Telegram Bot & App",
+    promos: "Promo Codes",
+    totalRevenue: "Total Revenue",
+    totalOrders: "Total Orders",
+    totalProducts: "Total Products",
+    activePromos: "Active Promos",
+    avgOrder: "Avg Order Value",
+    activeCustomers: "Active Customers",
+    ordersCSV: "Orders CSV",
+    productsCSV: "Products CSV",
+    resetCatalog: "Reset Catalog",
+    backToStore: "Back to Store",
+    logout: "Log Out",
+    addProduct: "Add Product",
+    editProduct: "Edit Product",
+    deleteConfirm: "Confirm Deletion",
+    searchPlaceholder: "Search by product name or category...",
+    revenueDynamics: "Revenue Dynamics",
+    categoryShare: "Category Sales Share",
+    weeklyVolume: "Daily Orders Inflow",
+    stockAlerts: "Stock Tracking"
+  }
+};
 
 export default function AdminDashboard() {
   const {
@@ -69,10 +162,26 @@ export default function AdminDashboard() {
   const { language, setLanguage, t } = useLanguage();
   const { theme, toggleTheme } = useTheme();
 
-  // Active navigation section in Sidebar
-  const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard' | 'products' | 'orders' | 'analytics' | 'telegram' | 'promos'
+  // React Router route param for tab (/admin, /admin/products, etc.)
+  const { tab } = useParams();
+  const navigate = useNavigate();
+  const activeTab = tab || 'dashboard';
+
+  const [isLangOpen, setIsLangOpen] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [productSearch, setProductSearch] = useState('');
+
+  const availableLanguages = [
+    { code: 'uz', label: "O'zbekcha", Icon: FlagUZ },
+    { code: 'ru', label: "Русский", Icon: FlagRU },
+    { code: 'en', label: "English", Icon: FlagEN }
+  ];
+  const currentLangObj = availableLanguages.find((l) => l.code === language) || availableLanguages[0];
+  const CurrentFlagIcon = currentLangObj.Icon;
+
+  const at = (key, fallback = '') => {
+    return adminTranslations[language]?.[key] || adminTranslations['uz']?.[key] || fallback || key;
+  };
 
   // Modals state for Product CRUD
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -352,13 +461,13 @@ Telegram Bot integratsiyasi muvaffaqiyatli ishlamoqda! ✅
 
   // Sidebar Menu Items
   const sidebarNav = [
-    { id: 'dashboard', label: "Dashboard & Grafiklar", icon: LayoutDashboard },
-    { id: 'products', label: "Mahsulotlar (CRUD)", icon: Package, badge: products.length },
-    { id: 'orders', label: "Buyurtmalar", icon: ShoppingBag, badge: orders.length },
-    { id: 'customers', label: "Mijozlar (CRM)", icon: Users, badge: customersList.length },
-    { id: 'analytics', label: "Savdo Tahlili", icon: BarChart3 },
-    { id: 'telegram', label: "Telegram Bot & App", icon: Send },
-    { id: 'promos', label: "Promokodlar", icon: Tag, badge: promoCodes.length }
+    { id: 'dashboard', label: at('dashboard', "Dashboard & Grafiklar"), icon: LayoutDashboard },
+    { id: 'products', label: at('products', "Mahsulotlar (CRUD)"), icon: Package, badge: products.length },
+    { id: 'orders', label: at('orders', "Buyurtmalar"), icon: ShoppingBag, badge: orders.length },
+    { id: 'customers', label: at('customers', "Mijozlar (CRM)"), icon: Users, badge: customersList.length },
+    { id: 'analytics', label: at('analytics', "Savdo Tahlili"), icon: BarChart3 },
+    { id: 'telegram', label: at('telegram', "Telegram Bot & App"), icon: Send },
+    { id: 'promos', label: at('promos', "Promokodlar"), icon: Tag, badge: promoCodes.length }
   ];
 
   return (
@@ -371,15 +480,55 @@ Telegram Bot integratsiyasi muvaffaqiyatli ishlamoqda! ✅
             M
           </div>
           <span className="font-extrabold text-base text-slate-900 dark:text-slate-100">
-            Admin Panel
+            {at('consoleTitle', 'Admin Console')}
           </span>
         </div>
-        <button
-          onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
-          className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200"
-        >
-          {isMobileSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Mobile Language Switcher */}
+          <div className="relative">
+            <button
+              onClick={() => setIsLangOpen(!isLangOpen)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 shadow-xs"
+            >
+              <CurrentFlagIcon className="w-4 h-3 rounded-xs" />
+              <span className="uppercase text-[11px]">{currentLangObj.code}</span>
+              <ChevronDown className={`w-3 h-3 text-slate-400 transition-transform ${isLangOpen ? 'rotate-180' : ''}`} />
+            </button>
+            {isLangOpen && (
+              <div className="absolute right-0 top-full mt-2 w-36 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden z-50 p-1.5 animate-fadeIn">
+                {availableLanguages.map((l) => {
+                  const FlagComp = l.Icon;
+                  return (
+                    <button
+                      key={l.code}
+                      onClick={() => {
+                        setLanguage(l.code);
+                        setIsLangOpen(false);
+                      }}
+                      className={`w-full flex items-center justify-between px-2.5 py-2 text-xs font-semibold rounded-xl transition ${
+                        language === l.code
+                          ? 'bg-indigo-600 text-white shadow-sm'
+                          : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <FlagComp className="w-4 h-3 rounded-xs" />
+                        <span>{l.label}</span>
+                      </div>
+                      {language === l.code && <CheckCircle2 className="w-3.5 h-3.5" />}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+          <button
+            onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+            className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200"
+          >
+            {isMobileSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
       </div>
 
       {/* LEFT SIDEBAR */}
@@ -400,7 +549,7 @@ Telegram Bot integratsiyasi muvaffaqiyatli ishlamoqda! ✅
                   MODERNO
                 </h2>
                 <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">
-                  Admin Console
+                  {at('consoleTitle', 'Admin Console')}
                 </span>
               </div>
             </Link>
@@ -412,18 +561,17 @@ Telegram Bot integratsiyasi muvaffaqiyatli ishlamoqda! ✅
             </button>
           </div>
 
-          {/* Navigation Items */}
+          {/* Navigation Items (React Router Tabs) */}
           <nav className="space-y-1.5 pt-2">
             {sidebarNav.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
+              const targetRoute = item.id === 'dashboard' ? '/admin' : `/admin/${item.id}`;
               return (
-                <button
+                <Link
                   key={item.id}
-                  onClick={() => {
-                    setActiveTab(item.id);
-                    setIsMobileSidebarOpen(false);
-                  }}
+                  to={targetRoute}
+                  onClick={() => setIsMobileSidebarOpen(false)}
                   className={`w-full flex items-center justify-between px-3.5 py-3 rounded-2xl text-xs sm:text-sm font-bold transition-all text-left ${
                     isActive
                       ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
@@ -445,7 +593,7 @@ Telegram Bot integratsiyasi muvaffaqiyatli ishlamoqda! ✅
                       {item.badge}
                     </span>
                   )}
-                </button>
+                </Link>
               );
             })}
           </nav>
@@ -511,7 +659,7 @@ Telegram Bot integratsiyasi muvaffaqiyatli ishlamoqda! ✅
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
           <div>
             <div className="flex items-center gap-2 text-xs text-slate-400 font-semibold mb-1">
-              <span>Admin Console</span>
+              <span>{at('consoleTitle', 'Admin Console')}</span>
               <ChevronRight className="w-3.5 h-3.5" />
               <span className="capitalize text-indigo-600 dark:text-indigo-400 font-bold">
                 {sidebarNav.find((s) => s.id === activeTab)?.label}
@@ -523,13 +671,53 @@ Telegram Bot integratsiyasi muvaffaqiyatli ishlamoqda! ✅
           </div>
 
           <div className="flex items-center flex-wrap gap-2.5">
+            {/* Language Switcher in Admin Top Bar */}
+            <div className="relative">
+              <button
+                onClick={() => setIsLangOpen(!isLangOpen)}
+                className="flex items-center gap-2 px-3 py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 shadow-sm transition active:scale-95"
+                title="Admin paneli tilini o'zgartirish"
+              >
+                <CurrentFlagIcon className="w-4 h-3 rounded-xs shadow-xs" />
+                <span className="uppercase tracking-wider font-extrabold">{currentLangObj.code}</span>
+                <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${isLangOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {isLangOpen && (
+                <div className="absolute right-0 top-full mt-2 w-44 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden z-50 p-1.5 animate-fadeIn">
+                  {availableLanguages.map((l) => {
+                    const FlagComp = l.Icon;
+                    return (
+                      <button
+                        key={l.code}
+                        onClick={() => {
+                          setLanguage(l.code);
+                          setIsLangOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-xl transition ${
+                          language === l.code
+                            ? 'bg-indigo-600 text-white shadow-sm font-bold'
+                            : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <FlagComp className="w-4 h-3 rounded-xs" />
+                          <span>{l.label}</span>
+                        </div>
+                        {language === l.code && <CheckCircle2 className="w-3.5 h-3.5" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
             <button
               onClick={exportOrdersToCSV}
               className="px-3.5 py-2 text-xs font-semibold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition flex items-center gap-1.5 shadow-sm active:scale-95"
               title="Buyurtmalar ro'yxatini Excel/CSV formatida yuklab olish"
             >
               <Download className="w-3.5 h-3.5" />
-              <span>Buyurtmalar CSV</span>
+              <span>{at('ordersCSV', 'Buyurtmalar CSV')}</span>
             </button>
             <button
               onClick={exportProductsToCSV}
@@ -537,14 +725,14 @@ Telegram Bot integratsiyasi muvaffaqiyatli ishlamoqda! ✅
               title="Mahsulotlar ro'yxatini Excel/CSV formatida yuklab olish"
             >
               <FileSpreadsheet className="w-3.5 h-3.5" />
-              <span>Mahsulotlar CSV</span>
+              <span>{at('productsCSV', 'Mahsulotlar CSV')}</span>
             </button>
             <button
               onClick={resetProductsToDefault}
               className="px-3.5 py-2 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition flex items-center gap-1.5"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              <span>Katalogni Qayta O'rnatish</span>
+              <span>{at('resetCatalog', "Katalogni Qayta O'rnatish")}</span>
             </button>
             <a
               href="https://t.me/nekitekibeki_bot?start=admin"
@@ -571,7 +759,7 @@ Telegram Bot integratsiyasi muvaffaqiyatli ishlamoqda! ✅
               className="px-3.5 py-2 text-xs font-bold rounded-xl border border-indigo-200 dark:border-indigo-900/60 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition flex items-center gap-1.5"
             >
               <Store className="w-3.5 h-3.5" />
-              <span>Do'konga qaytish</span>
+              <span>{at('backToStore', "Do'konga qaytish")}</span>
             </Link>
           </div>
         </div>

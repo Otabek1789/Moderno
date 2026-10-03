@@ -255,6 +255,55 @@ export function StoreProvider({ children }) {
 
   const [appliedPromo, setAppliedPromo] = useState(null);
 
+  // --- MODERNO COINS & CASHBACK SYSTEM ---
+  const [modernoCoins, setModernoCoins] = useState(() => {
+    const saved = localStorage.getItem('moderno_coins');
+    return saved !== null ? Number(saved) : 50000; // 50,000 initial bonus coins
+  });
+
+  useEffect(() => {
+    localStorage.setItem('moderno_coins', String(modernoCoins));
+  }, [modernoCoins]);
+
+  const addCoins = (amount, reason = "Xarid keshbeki") => {
+    const num = Math.round(Number(amount) || 0);
+    setModernoCoins((prev) => prev + num);
+  };
+
+  const useCoins = (amount) => {
+    const num = Math.round(Number(amount) || 0);
+    setModernoCoins((prev) => Math.max(0, prev - num));
+  };
+
+  // --- OLYMPIAD TOP FEATURES MODALS STATE ---
+  const [receiptModal, setReceiptModal] = useState({ isOpen: false, order: null });
+  const openReceipt = (order) => setReceiptModal({ isOpen: true, order });
+  const closeReceipt = () => setReceiptModal({ isOpen: false, order: null });
+
+  const [courierModal, setCourierModal] = useState({ isOpen: false, order: null });
+  const openCourierTracking = (order) => setCourierModal({ isOpen: true, order });
+  const closeCourierTracking = () => setCourierModal({ isOpen: false, order: null });
+
+  const [paymentModal, setPaymentModal] = useState({ isOpen: false, data: null });
+  const openPayment = (data) => setPaymentModal({ isOpen: true, data });
+  const closePayment = () => setPaymentModal({ isOpen: false, data: null });
+
+  const [wheelModal, setWheelModal] = useState(false);
+  const openWheel = () => setWheelModal(true);
+  const closeWheel = () => setWheelModal(false);
+
+  const [voiceModal, setVoiceModal] = useState(false);
+  const openVoice = () => setVoiceModal(true);
+  const closeVoice = () => setVoiceModal(false);
+
+  const [spotlightModal, setSpotlightModal] = useState(false);
+  const openSpotlight = () => setSpotlightModal(true);
+  const closeSpotlight = () => setSpotlightModal(false);
+
+  const [viewer360Modal, setViewer360Modal] = useState({ isOpen: false, product: null });
+  const open360Viewer = (product) => setViewer360Modal({ isOpen: true, product });
+  const close360Viewer = () => setViewer360Modal({ isOpen: false, product: null });
+
   // 5. Orders with LocalStorage persistence
   const [orders, setOrders] = useState(() => {
     const saved = localStorage.getItem('shop_orders');
@@ -464,6 +513,11 @@ export function StoreProvider({ children }) {
       status: "pending",
       createdAt: new Date().toISOString()
     };
+
+    // Award 3% Cashback in Moderno Coins!
+    const earnedCashback = Math.round(grandTotal * 0.03);
+    addCoins(earnedCashback, `Buyurtma #${newOrder.id} uchun 3% keshbek`);
+    newOrder.earnedCoins = earnedCashback;
 
     setOrders((prev) => [newOrder, ...prev]);
 
@@ -725,7 +779,39 @@ export function StoreProvider({ children }) {
         closeQuickBuy,
         // Upgrader
         upgradeHistory,
-        addUpgradeRecord
+        addUpgradeRecord,
+        // Moderno Coins & Loyalty
+        modernoCoins,
+        addCoins,
+        useCoins,
+        // Receipt Modal
+        receiptModal,
+        openReceipt,
+        closeReceipt,
+        // Courier Live Map Modal
+        courierModal,
+        openCourierTracking,
+        closeCourierTracking,
+        // Payment Gateway Modal
+        paymentModal,
+        openPayment,
+        closePayment,
+        // Lucky Wheel Modal
+        wheelModal,
+        openWheel,
+        closeWheel,
+        // Voice Search Modal
+        voiceModal,
+        openVoice,
+        closeVoice,
+        // Spotlight Search Modal
+        spotlightModal,
+        openSpotlight,
+        closeSpotlight,
+        // 360 Viewer Modal
+        viewer360Modal,
+        open360Viewer,
+        close360Viewer
       }}
     >
       {children}

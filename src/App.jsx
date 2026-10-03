@@ -7,13 +7,23 @@ import TelegramPreviewModal from './components/common/TelegramPreviewModal';
 import QuickBuyModal from './components/common/QuickBuyModal';
 import LiveChatWidget from './components/common/LiveChatWidget';
 
-// Telegram Mini App Dedicated Components
+// Advanced Olympiad-Winning Features
+import AccessibilityModal from './components/common/AccessibilityModal';
+import VoiceSearchModal from './components/common/VoiceSearchModal';
+import SpotlightSearchModal from './components/common/SpotlightSearchModal';
+import LuckyWheelModal from './components/common/LuckyWheelModal';
+import PaymentGatewayModal from './components/common/PaymentGatewayModal';
+import FiscalReceiptModal from './components/common/FiscalReceiptModal';
+import LiveCourierMapModal from './components/common/LiveCourierMapModal';
+import Product360ViewerModal from './components/common/Product360ViewerModal';
+import PWAInstallBanner from './components/common/PWAInstallBanner';
+
 import TelegramHeader from './components/telegram/TelegramHeader';
 import TelegramBottomNav from './components/telegram/TelegramBottomNav';
 import TelegramNativeControls from './components/telegram/TelegramNativeControls';
 import { useTelegramWebApp } from './hooks/useTelegramWebApp';
+import { useStore } from './context/StoreContext';
 
-// Pages
 import Home from './pages/Home';
 import Shop from './pages/Shop';
 import ProductDetail from './pages/ProductDetail';
@@ -49,17 +59,47 @@ export default function App() {
   const isAdminPage = location.pathname.startsWith('/admin');
   const isStandalonePage = isAuthPage || isAdminPage;
 
+  const {
+    receiptModal,
+    closeReceipt,
+    courierModal,
+    closeCourierTracking,
+    paymentModal,
+    closePayment,
+    wheelModal,
+    openWheel,
+    closeWheel,
+    voiceModal,
+    openVoice,
+    closeVoice,
+    spotlightModal,
+    openSpotlight,
+    closeSpotlight,
+    viewer360Modal,
+    close360Viewer,
+    openReceipt
+  } = useStore();
+
+  // Global Ctrl + K / Cmd + K listener for Spotlight Command Palette
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        openSpotlight();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [openSpotlight]);
+
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200">
       <ScrollToTop />
 
-      {/* Telegram Native SDK Synchronization (MainButton, BackButton, Haptics) */}
       <TelegramNativeControls />
 
-      {/* Header: Hidden on Auth & Admin pages so Admin has ONLY its own Sidebar */}
       {!isStandalonePage && (isTelegram ? <TelegramHeader /> : <Navbar />)}
 
-      {/* Main Content View */}
       <main className={`flex-1 ${isStandalonePage ? '' : isTelegram ? 'pb-20' : 'pb-16 lg:pb-0'}`}>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -81,23 +121,69 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Login defaultRegister={true} />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/:tab" element={<AdminDashboard />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
 
-      {/* Global Interactive Telegram Modal (Order simulator) */}
       {!isStandalonePage && <TelegramPreviewModal />}
-
-      {/* Global 1-Click Quick Purchase Modal */}
       {!isStandalonePage && <QuickBuyModal />}
-
-      {/* Global AI & Telegram Live Chat Assistant Widget */}
       {!isStandalonePage && <LiveChatWidget />}
+      {!isStandalonePage && <PWAInstallBanner />}
 
-      {/* Navigation Dock: Telegram Mini App Bottom Bar or Standard Mobile Nav */}
+      {/* Global Olympiad Modals */}
+      <AccessibilityModal />
+      <VoiceSearchModal isOpen={voiceModal} onClose={closeVoice} />
+      <SpotlightSearchModal
+        isOpen={spotlightModal}
+        onClose={closeSpotlight}
+        onOpenVoice={openVoice}
+        onOpenWheel={openWheel}
+      />
+      <LuckyWheelModal isOpen={wheelModal} onClose={closeWheel} />
+      
+      {paymentModal?.isOpen && (
+        <PaymentGatewayModal
+          isOpen={paymentModal.isOpen}
+          onClose={closePayment}
+          amount={paymentModal.data?.amount}
+          method={paymentModal.data?.method}
+          orderId={paymentModal.data?.orderId}
+          customerPhone={paymentModal.data?.phone}
+          onPaymentSuccess={paymentModal.data?.onSuccess}
+          onOpenReceipt={() => {
+            if (paymentModal.data?.order) {
+              openReceipt(paymentModal.data.order);
+            }
+          }}
+        />
+      )}
+
+      {receiptModal?.isOpen && (
+        <FiscalReceiptModal
+          isOpen={receiptModal.isOpen}
+          onClose={closeReceipt}
+          order={receiptModal.order}
+        />
+      )}
+
+      {courierModal?.isOpen && (
+        <LiveCourierMapModal
+          isOpen={courierModal.isOpen}
+          onClose={closeCourierTracking}
+          order={courierModal.order}
+        />
+      )}
+
+      {viewer360Modal?.isOpen && (
+        <Product360ViewerModal
+          isOpen={viewer360Modal.isOpen}
+          onClose={close360Viewer}
+          product={viewer360Modal.product}
+        />
+      )}
+
       {!isStandalonePage && (isTelegram ? <TelegramBottomNav /> : <MobileNav />)}
-
-      {/* Footer: Hidden on auth & admin pages and inside Telegram Mini App */}
       {!isStandalonePage && !isTelegram && <Footer />}
     </div>
   );
