@@ -121,54 +121,31 @@ export function StoreProvider({ children }) {
       const raw = savedV4 || savedV3;
       if (raw) {
         const parsed = JSON.parse(raw);
-        const ankerWorkingImg = "https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format&fit=crop&w=800&q=80";
-        const ankerWorkingImages = [
-          "https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format&fit=crop&w=800&q=80",
-          "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?auto=format&fit=crop&w=800&q=80",
-          "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=800&q=80"
-        ];
-
-        const sanitized = parsed.map((p) => {
-          if (p.id === 1) {
-            return {
-              ...p,
-              name: "Apple iPhone 15 Pro Max 256GB Natural Titanium",
-              description: initialProducts[0].description,
-              specs: initialProducts[0].specs,
-              image: initialProducts[0].image,
-              images: initialProducts[0].images
-            };
-          }
-          if (p.id === 12) {
-            return {
-              ...p,
-              image: ankerWorkingImg,
-              images: ankerWorkingImages
-            };
-          }
-          return p;
-        });
-
-        // Ensure newly added items (like 13 Tuflik, 14 Pegasus) are retained
-        const existingIds = new Set(sanitized.map((p) => p.id));
-        initialProducts.forEach((ip) => {
-          if (!existingIds.has(ip.id)) {
-            sanitized.push(ip);
-          }
-        });
-
-        localStorage.setItem('shop_products_v4', JSON.stringify(sanitized));
-        localStorage.removeItem('shop_products_v3');
-        return sanitized;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // Retain all user edits exactly as saved!
+          // Only add newly introduced default products if missing
+          const existingIds = new Set(parsed.map((p) => String(p.id)));
+          const merged = [...parsed];
+          initialProducts.forEach((ip) => {
+            if (!existingIds.has(String(ip.id))) {
+              merged.push(ip);
+            }
+          });
+          return merged;
+        }
       }
-    } catch {
-      // fallback
+    } catch (e) {
+      console.error("Failed to load products from localStorage:", e);
     }
     return initialProducts;
   });
 
   useEffect(() => {
-    localStorage.setItem('shop_products_v4', JSON.stringify(products));
+    try {
+      localStorage.setItem('shop_products_v4', JSON.stringify(products));
+    } catch (err) {
+      console.error("Failed to save products to localStorage:", err);
+    }
   }, [products]);
 
   // 2. Cart with LocalStorage persistence
@@ -355,14 +332,22 @@ export function StoreProvider({ children }) {
       images: productData.images?.length ? productData.images : [productData.image],
       isNew: true
     };
-    setProducts((prev) => [newProduct, ...prev]);
+    setProducts((prev) => {
+      const next = [newProduct, ...prev];
+      try {
+        localStorage.setItem('shop_products_v4', JSON.stringify(next));
+      } catch (err) {
+        console.error("LocalStorage save error:", err);
+      }
+      return next;
+    });
     return newProduct;
   };
 
   const updateProduct = (id, updatedFields) => {
-    setProducts((prev) =>
-      prev.map((item) =>
-        item.id === id
+    setProducts((prev) => {
+      const next = prev.map((item) =>
+        String(item.id) === String(id)
           ? {
               ...item,
               ...updatedFields,
@@ -370,23 +355,44 @@ export function StoreProvider({ children }) {
               discountPrice: updatedFields.discountPrice !== undefined
                 ? (updatedFields.discountPrice ? Number(updatedFields.discountPrice) : null)
                 : item.discountPrice,
-              stock: Number(updatedFields.stock !== undefined ? updatedFields.stock : item.stock)
+              stock: Number(updatedFields.stock !== undefined ? updatedFields.stock : item.stock),
+              images: updatedFields.images
+                ? updatedFields.images
+                : updatedFields.image
+                ? [updatedFields.image, ...(Array.isArray(item.images) ? item.images.slice(1) : [])]
+                : item.images
             }
           : item
-      )
-    );
+      );
+      try {
+        localStorage.setItem('shop_products_v4', JSON.stringify(next));
+      } catch (err) {
+        console.error("LocalStorage save error:", err);
+      }
+      return next;
+    });
   };
 
   const deleteProduct = (id) => {
-    setProducts((prev) => prev.filter((item) => item.id !== id));
-    setCart((prev) => prev.filter((item) => item.product.id !== id));
-    setWishlist((prev) => prev.filter((item) => item.id !== id));
+    setProducts((prev) => {
+      const next = prev.filter((item) => String(item.id) !== String(id));
+      try {
+        localStorage.setItem('shop_products_v4', JSON.stringify(next));
+      } catch (err) {
+        console.error("LocalStorage save error:", err);
+      }
+      return next;
+    });
+    setCart((prev) => prev.filter((item) => String(item.product?.id) !== String(id)));
+    setWishlist((prev) => prev.filter((item) => String(item.id) !== String(id)));
   };
 
   const resetProductsToDefault = () => {
     setProducts(initialProducts);
-    localStorage.setItem('shop_products_v4', JSON.stringify(initialProducts));
-    localStorage.removeItem('shop_products_v3');
+    try {
+      localStorage.setItem('shop_products_v4', JSON.stringify(initialProducts));
+      localStorage.removeItem('shop_products_v3');
+    } catch {}
   };
 
   // --- Cart Actions ---

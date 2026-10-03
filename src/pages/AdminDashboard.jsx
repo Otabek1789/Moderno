@@ -187,6 +187,7 @@ export default function AdminDashboard() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [deletingProductId, setDeletingProductId] = useState(null);
+  const [saveToast, setSaveToast] = useState('');
 
   // Add / Edit Product Form State
   const [productForm, setProductForm] = useState({
@@ -264,18 +265,32 @@ export default function AdminDashboard() {
       updateProduct(editingProduct.id, {
         name: productForm.name,
         category: productForm.category,
+        categoryName: {
+          uz: productForm.category,
+          ru: productForm.category,
+          en: productForm.category
+        },
         price: Number(productForm.price),
         discountPrice: productForm.discountPrice ? Number(productForm.discountPrice) : null,
         stock: Number(productForm.stock),
         rating: Number(productForm.rating),
-        image: productForm.image || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80',
-        description: {
-          uz: productForm.description,
-          ru: productForm.description,
-          en: productForm.description
-        }
+        image: productForm.image || editingProduct.image || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80',
+        images: productForm.image ? [productForm.image] : (editingProduct.images || []),
+        description: typeof editingProduct.description === 'object'
+          ? {
+              ...editingProduct.description,
+              uz: productForm.description,
+              [language]: productForm.description
+            }
+          : {
+              uz: productForm.description,
+              ru: productForm.description,
+              en: productForm.description
+            }
       });
       setEditingProduct(null);
+      setSaveToast("Mahsulot muvaffaqiyatli saqlandi va LocalStorage ga yozildi! ✅");
+      setTimeout(() => setSaveToast(''), 4000);
     } else {
       addProduct({
         name: productForm.name,
@@ -290,6 +305,7 @@ export default function AdminDashboard() {
         stock: Number(productForm.stock),
         rating: Number(productForm.rating),
         image: productForm.image || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80',
+        images: productForm.image ? [productForm.image] : ['https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80'],
         description: {
           uz: productForm.description,
           ru: productForm.description,
@@ -297,6 +313,8 @@ export default function AdminDashboard() {
         }
       });
       setIsAddModalOpen(false);
+      setSaveToast("Yangi mahsulot muvaffaqiyatli qo'shildi! ✅");
+      setTimeout(() => setSaveToast(''), 4000);
     }
 
     setProductForm({
@@ -314,14 +332,16 @@ export default function AdminDashboard() {
   const openEditModal = (p) => {
     setEditingProduct(p);
     setProductForm({
-      name: p.name,
-      category: p.category,
-      price: p.price,
+      name: p.name || '',
+      category: p.category || 'smartphones',
+      price: p.price || '',
       discountPrice: p.discountPrice || '',
-      stock: p.stock,
-      rating: p.rating,
-      image: p.image,
-      description: typeof p.description === 'object' ? p.description['uz'] : p.description
+      stock: p.stock !== undefined ? p.stock : 10,
+      rating: p.rating || 5.0,
+      image: p.image || '',
+      description: typeof p.description === 'object'
+        ? (p.description['uz'] || p.description[language] || '')
+        : (p.description || '')
     });
   };
 
@@ -1611,6 +1631,14 @@ Telegram Bot integratsiyasi muvaffaqiyatli ishlamoqda! ✅
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      {saveToast && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3 rounded-2xl bg-emerald-600 text-white font-bold text-xs sm:text-sm shadow-2xl shadow-emerald-600/30 animate-fadeIn">
+          <CheckCircle2 className="w-5 h-5 shrink-0" />
+          <span>{saveToast}</span>
         </div>
       )}
 
