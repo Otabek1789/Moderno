@@ -9,33 +9,15 @@ import {
   ArrowRight,
   Send,
   Sparkles,
-  ShoppingBag,
-  Coins,
-  FileText,
-  MapPin
+  ShoppingBag
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
-import sound from '../utils/soundFX';
 import { formatPrice } from '../utils/formatters';
 
 export default function Checkout() {
-  const {
-    cart,
-    cartSubtotal,
-    discountAmount,
-    shippingFee,
-    grandTotal,
-    appliedPromo,
-    createOrder,
-    modernoCoins,
-    useCoins,
-    openReceipt,
-    openCourierTracking,
-    openPayment
-  } = useStore();
-
+  const { cart, cartSubtotal, discountAmount, shippingFee, grandTotal, appliedPromo, createOrder } = useStore();
   const { user } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
@@ -45,16 +27,11 @@ export default function Checkout() {
     phone: user?.phone || '+998 ',
     address: '',
     note: '',
-    paymentMethod: 'click' // 'click' | 'payme' | 'uzum' | 'cash'
+    paymentMethod: 'click' // 'click' | 'payme' | 'cash'
   });
 
-  const [useCoinsDiscount, setUseCoinsDiscount] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [createdOrder, setCreatedOrder] = useState(null);
-
-  // Maximum usable coins: up to 10% of total amount or available coins
-  const maxUsableCoins = Math.min(modernoCoins || 0, Math.round(grandTotal * 0.1));
-  const finalPayableTotal = useCoinsDiscount ? Math.max(0, grandTotal - maxUsableCoins) : grandTotal;
 
   if (cart.length === 0 && !createdOrder) {
     return (
@@ -72,13 +49,16 @@ export default function Checkout() {
     );
   }
 
-  const finalizeOrder = async (finalAmount, paymentTxn = null) => {
-    setIsSubmitting(true);
-    try {
-      if (useCoinsDiscount && maxUsableCoins > 0) {
-        useCoins(maxUsableCoins);
-      }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.fullName.trim() || !formData.phone.trim() || !formData.address.trim()) {
+      alert("Iltimos, ism, telefon va manzil maydonlarini to'ldiring!");
+      return;
+    }
 
+    setIsSubmitting(true);
+
+    try {
       const order = await createOrder({
         customerName: formData.fullName,
         phone: formData.phone,
@@ -87,14 +67,10 @@ export default function Checkout() {
         note: formData.note
       });
 
-      if (paymentTxn) {
-        order.transactionId = paymentTxn.transactionId;
-      }
-
-      sound.playSuccess();
+      // Trigger Celebration Confetti!
       confetti({
-        particleCount: 130,
-        spread: 80,
+        particleCount: 120,
+        spread: 70,
         origin: { y: 0.6 }
       });
 
@@ -107,34 +83,8 @@ export default function Checkout() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!formData.fullName.trim() || !formData.phone.trim() || !formData.address.trim()) {
-      alert("Iltimos, ism, telefon va manzil maydonlarini to'ldiring!");
-      return;
-    }
-
-    // If online fintech payment is chosen, open simulated Payment Gateway!
-    if (['click', 'payme', 'uzum'].includes(formData.paymentMethod)) {
-      openPayment({
-        amount: finalPayableTotal,
-        method: formData.paymentMethod,
-        phone: formData.phone,
-        onSuccess: (txn) => {
-          finalizeOrder(finalPayableTotal, txn);
-        }
-      });
-      return;
-    }
-
-    // Cash / COD
-    await finalizeOrder(finalPayableTotal);
-  };
-
   // Order Success Screen
   if (createdOrder) {
-    const earnedCashback = Math.round((createdOrder.totalAmount || 0) * 0.03);
-
     return (
       <div className="max-w-2xl mx-auto px-4 py-16 text-center animate-fadeIn">
         <div className="w-20 h-20 rounded-3xl bg-emerald-500/20 text-emerald-500 flex items-center justify-center mx-auto mb-6 shadow-xl shadow-emerald-500/10">
@@ -147,19 +97,6 @@ export default function Checkout() {
         <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-lg mx-auto mb-6">
           {t('checkout.successSub', { orderId: createdOrder.id })}
         </p>
-
-        {/* Cashback Coins Banner */}
-        <div className="mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 flex items-center justify-center gap-3">
-          <Coins className="w-6 h-6 text-amber-500 animate-pulse" />
-          <div className="text-left">
-            <p className="font-extrabold text-sm sm:text-base">
-              +{earnedCashback.toLocaleString()} Moderno Coin hisobingizga tushdi!
-            </p>
-            <p className="text-xs text-amber-600/80 dark:text-amber-400/80">
-              Ushbu tangalarni keyingi xaridlarda chegirmaga almashtirishingiz mumkin.
-            </p>
-          </div>
-        </div>
 
         {/* Order Details Card */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 text-left mb-8 shadow-sm space-y-4 text-xs sm:text-sm">
@@ -183,7 +120,7 @@ export default function Checkout() {
           </div>
           <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
             <span className="text-slate-400">To'lov turi:</span>
-            <span className="font-semibold uppercase text-indigo-600 dark:text-indigo-400">
+            <span className="font-semibold uppercase text-indigo-600">
               {createdOrder.paymentMethod}
             </span>
           </div>
@@ -195,40 +132,16 @@ export default function Checkout() {
           </div>
         </div>
 
-        {/* Action Buttons: Electronic Receipt & Live Map */}
-        <div className="flex flex-col sm:flex-row gap-3 justify-center mb-4">
-          <button
-            onClick={() => {
-              sound.playClick();
-              openReceipt(createdOrder);
-            }}
-            className="px-6 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm shadow-xl shadow-indigo-600/30 flex items-center justify-center gap-2 transition active:scale-95"
-          >
-            <FileText className="w-4 h-4" /> 🧾 Elektron Fiskal Chek (PDF)
-          </button>
-
-          <button
-            onClick={() => {
-              sound.playClick();
-              openCourierTracking(createdOrder);
-            }}
-            className="px-6 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-xl shadow-emerald-600/30 flex items-center justify-center gap-2 transition active:scale-95"
-          >
-            <Truck className="w-4 h-4" /> 🚚 Kuryerni Xaritada Kuzatish
-          </button>
-        </div>
-
-        <div className="flex gap-4 justify-center text-xs">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             to="/orders"
-            className="text-slate-500 hover:text-indigo-600 underline font-semibold"
+            className="px-6 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-xl shadow-indigo-600/30 transition"
           >
             {t('checkout.viewOrders')}
           </Link>
-          <span className="text-slate-300">•</span>
           <Link
             to="/shop"
-            className="text-slate-500 hover:text-indigo-600 underline font-semibold"
+            className="px-6 py-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-sm transition"
           >
             {t('checkout.continueShopping')}
           </Link>
@@ -320,10 +233,10 @@ export default function Checkout() {
               {t('checkout.paymentMethod')}
             </h2>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {/* Click */}
               <label
-                className={`p-3.5 rounded-2xl border cursor-pointer flex flex-col justify-between transition-all ${
+                className={`p-4 rounded-2xl border cursor-pointer flex flex-col justify-between transition-all ${
                   formData.paymentMethod === 'click'
                     ? 'border-indigo-600 bg-indigo-50/60 dark:bg-indigo-950/40 ring-2 ring-indigo-600/20'
                     : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950'
@@ -337,13 +250,13 @@ export default function Checkout() {
                   onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
                   className="sr-only"
                 />
-                <span className="font-black text-sm text-blue-600">CLICK</span>
-                <span className="text-[11px] text-slate-400 mt-2">Onlayn to'lov</span>
+                <span className="font-black text-sm text-slate-900 dark:text-slate-100">CLICK</span>
+                <span className="text-xs text-slate-400 mt-2">Onlayn to'lov</span>
               </label>
 
               {/* Payme */}
               <label
-                className={`p-3.5 rounded-2xl border cursor-pointer flex flex-col justify-between transition-all ${
+                className={`p-4 rounded-2xl border cursor-pointer flex flex-col justify-between transition-all ${
                   formData.paymentMethod === 'payme'
                     ? 'border-indigo-600 bg-indigo-50/60 dark:bg-indigo-950/40 ring-2 ring-indigo-600/20'
                     : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950'
@@ -357,33 +270,13 @@ export default function Checkout() {
                   onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
                   className="sr-only"
                 />
-                <span className="font-black text-sm text-teal-500">PAYME</span>
-                <span className="text-[11px] text-slate-400 mt-2">Onlayn to'lov</span>
-              </label>
-
-              {/* Uzum Pay */}
-              <label
-                className={`p-3.5 rounded-2xl border cursor-pointer flex flex-col justify-between transition-all ${
-                  formData.paymentMethod === 'uzum'
-                    ? 'border-indigo-600 bg-indigo-50/60 dark:bg-indigo-950/40 ring-2 ring-indigo-600/20'
-                    : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950'
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="payment"
-                  value="uzum"
-                  checked={formData.paymentMethod === 'uzum'}
-                  onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
-                  className="sr-only"
-                />
-                <span className="font-black text-sm text-purple-600">UZUM / KARTA</span>
-                <span className="text-[11px] text-slate-400 mt-2">Humo & Uzcard</span>
+                <span className="font-black text-sm text-emerald-500">PAYME</span>
+                <span className="text-xs text-slate-400 mt-2">Onlayn to'lov</span>
               </label>
 
               {/* Cash */}
               <label
-                className={`p-3.5 rounded-2xl border cursor-pointer flex flex-col justify-between transition-all ${
+                className={`p-4 rounded-2xl border cursor-pointer flex flex-col justify-between transition-all ${
                   formData.paymentMethod === 'cash'
                     ? 'border-indigo-600 bg-indigo-50/60 dark:bg-indigo-950/40 ring-2 ring-indigo-600/20'
                     : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950'
@@ -397,8 +290,8 @@ export default function Checkout() {
                   onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
                   className="sr-only"
                 />
-                <span className="font-black text-sm text-slate-900 dark:text-slate-100">NAQD PUL</span>
-                <span className="text-[11px] text-slate-400 mt-2">Kuryerga to'lash</span>
+                <span className="font-black text-sm text-slate-900 dark:text-slate-100">NAQD / KARTA</span>
+                <span className="text-xs text-slate-400 mt-2">Qabul qilganda</span>
               </label>
             </div>
           </div>
@@ -435,71 +328,27 @@ export default function Checkout() {
               ))}
             </div>
 
-            {/* Moderno Coins Loyalty Discount Box */}
-            {modernoCoins > 0 && maxUsableCoins > 0 && (
-              <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-transparent border border-amber-500/30 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2.5">
-                  <Coins className="w-5 h-5 text-amber-500 shrink-0" />
-                  <div>
-                    <p className="font-extrabold text-xs text-amber-800 dark:text-amber-300">
-                      Moderno Coins chegirmasi
-                    </p>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                      Balans: {modernoCoins.toLocaleString()} • Chegirma: -{formatPrice(maxUsableCoins)}
-                    </p>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    sound.playCoin();
-                    setUseCoinsDiscount(!useCoinsDiscount);
-                  }}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition active:scale-95 shrink-0 ${
-                    useCoinsDiscount
-                      ? 'bg-amber-500 text-white shadow-md'
-                      : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
-                  }`}
-                >
-                  {useCoinsDiscount ? "Ishlatildi ✓" : "Ishlatish"}
-                </button>
-              </div>
-            )}
-
             {/* Calculations */}
             <div className="space-y-2.5 pt-4 border-t border-slate-100 dark:border-slate-800 text-xs sm:text-sm">
               <div className="flex justify-between text-slate-600 dark:text-slate-300">
                 <span>{t('cart.subtotal')}</span>
                 <span className="font-semibold text-slate-900 dark:text-slate-100">{formatPrice(cartSubtotal)}</span>
               </div>
-
               {discountAmount > 0 && (
                 <div className="flex justify-between text-emerald-600 font-semibold">
                   <span>{t('cart.discount')} ({appliedPromo?.code})</span>
                   <span>-{formatPrice(discountAmount)}</span>
                 </div>
               )}
-
-              {useCoinsDiscount && maxUsableCoins > 0 && (
-                <div className="flex justify-between text-amber-500 font-bold">
-                  <span>🪙 Coins chegirmasi:</span>
-                  <span>-{formatPrice(maxUsableCoins)}</span>
-                </div>
-              )}
-
               <div className="flex justify-between text-slate-600 dark:text-slate-300">
                 <span>{t('cart.shipping')}</span>
                 <span className="font-semibold text-slate-900 dark:text-slate-100">
                   {shippingFee === 0 ? <span className="text-emerald-500 font-bold">{t('cart.free')}</span> : formatPrice(shippingFee)}
                 </span>
               </div>
-
               <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex justify-between items-baseline">
                 <span className="font-extrabold text-base text-slate-900 dark:text-slate-100">{t('cart.grandTotal')}</span>
-                <span className="text-2xl font-black text-indigo-600 dark:text-indigo-400">
-                  {formatPrice(finalPayableTotal)}
-                </span>
+                <span className="text-2xl font-black text-indigo-600 dark:text-indigo-400">{formatPrice(grandTotal)}</span>
               </div>
             </div>
 
@@ -519,7 +368,7 @@ export default function Checkout() {
                 <span>{t('checkout.processing')}</span>
               ) : (
                 <>
-                  <span>To'lash & Tasdiqlash: {formatPrice(finalPayableTotal)}</span>
+                  <span>{t('checkout.placeOrder')}</span>
                   <ArrowRight className="w-5 h-5" />
                 </>
               )}

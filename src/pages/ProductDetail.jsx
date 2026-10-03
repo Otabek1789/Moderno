@@ -15,14 +15,10 @@ import {
   Send,
   Scale,
   Rocket,
-  MessageSquare,
-  Volume2,
-  VolumeX
+  MessageSquare
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { useLanguage } from '../context/LanguageContext';
-import { useAccessibility } from '../context/AccessibilityContext';
-import sound from '../utils/soundFX';
 import ProductCard from '../components/common/ProductCard';
 import InstallmentCalculator from '../components/common/InstallmentCalculator';
 import ProductReviews from '../components/common/ProductReviews';
@@ -42,11 +38,9 @@ export default function ProductDetail() {
     isInCompare,
     openQuickBuy,
     addToRecentlyViewed,
-    getProductReviews,
-    open360Viewer
+    getProductReviews
   } = useStore();
   const { language, t } = useLanguage();
-  const { speakText, stopSpeaking, isSpeaking } = useAccessibility();
 
   const product = products.find((p) => String(p.id) === String(id));
   const [selectedImage, setSelectedImage] = useState('');
@@ -145,18 +139,6 @@ export default function ProductDetail() {
                 -{Math.round(((product.price - product.discountPrice) / product.price) * 100)}% Chegirma
               </span>
             )}
-
-            {/* 360 Interactive Viewer Button */}
-            <button
-              onClick={() => {
-                sound.playPop();
-                open360Viewer(product);
-              }}
-              className="absolute bottom-4 right-4 px-3.5 py-2 rounded-2xl bg-slate-900/85 hover:bg-slate-900 text-white backdrop-blur-md text-xs font-bold flex items-center gap-2 shadow-xl border border-white/10 transition active:scale-95 group"
-            >
-              <RotateCcw className="w-4 h-4 text-indigo-400 group-hover:rotate-180 transition-transform duration-500" />
-              <span>360° Ko'rish</span>
-            </button>
           </div>
 
           {/* Thumbnails */}
@@ -190,36 +172,11 @@ export default function ProductDetail() {
         {/* Right: Product Info (7 cols) */}
         <div className="lg:col-span-6 flex flex-col justify-between space-y-6">
           <div>
-            {/* Category, Rating & Text to Speech */}
-            <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
-              <div className="flex items-center gap-2">
-                <span className="px-3 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 text-xs font-bold uppercase tracking-wider">
-                  {categoryName}
-                </span>
-
-                {/* Text To Speech Audio Reader */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (isSpeaking) {
-                      stopSpeaking();
-                    } else {
-                      sound.playPop();
-                      speakText(`${product.name}. Narxi: ${formatPrice(product.discountPrice || product.price)}. Rasmiy kafolat mavjud.`, language);
-                    }
-                  }}
-                  className={`px-2.5 py-1 rounded-lg border text-xs font-bold flex items-center gap-1.5 transition active:scale-95 ${
-                    isSpeaking
-                      ? 'bg-rose-500 text-white border-rose-500 shadow-md animate-pulse'
-                      : 'bg-indigo-50 dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-slate-700 hover:bg-indigo-100'
-                  }`}
-                  title="Mahsulot ma'lumotlarini ovozli tinglash (Web Speech AI)"
-                >
-                  {isSpeaking ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
-                  <span className="text-[11px]">{isSpeaking ? "To'xtatish" : "Ovozli tinglash"}</span>
-                </button>
-              </div>
-
+            {/* Category & Rating */}
+            <div className="flex items-center justify-between gap-4 mb-3">
+              <span className="px-3 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 text-xs font-bold uppercase tracking-wider">
+                {categoryName}
+              </span>
               <div className="flex items-center gap-1.5 text-xs">
                 <div className="flex items-center text-amber-400">
                   <Star className="w-4 h-4 fill-amber-400" />

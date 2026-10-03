@@ -13,16 +13,14 @@ import {
   Phone,
   ShieldCheck,
   ChevronRight,
-  RotateCcw,
-  FileText
+  RotateCcw
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { useLanguage } from '../context/LanguageContext';
-import sound from '../utils/soundFX';
 import { formatPrice, formatDate } from '../utils/formatters';
 
 export default function Orders() {
-  const { orders, openReceipt, openCourierTracking } = useStore();
+  const { orders } = useStore();
   const { t } = useLanguage();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -218,29 +216,6 @@ export default function Orders() {
               <span>To'lov: {activeTrackedOrder.paymentMethod.toUpperCase()}</span>
             </div>
           </div>
-
-          {/* Actions: Live Courier Map & Fiscal Receipt */}
-          <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-white/10">
-            <button
-              onClick={() => {
-                sound.playClick();
-                openCourierTracking(activeTrackedOrder);
-              }}
-              className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-emerald-500/20 transition active:scale-95"
-            >
-              <Truck className="w-4 h-4" /> 🚚 Xaritada Kuryerni Jonli Kuzatish
-            </button>
-
-            <button
-              onClick={() => {
-                sound.playClick();
-                openReceipt(activeTrackedOrder);
-              }}
-              className="px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 text-white font-bold text-xs flex items-center gap-2 backdrop-blur-md transition active:scale-95"
-            >
-              <FileText className="w-4 h-4" /> 🧾 Elektron Fiskal Chek (Invoys)
-            </button>
-          </div>
         </div>
       )}
 
@@ -322,36 +297,10 @@ export default function Orders() {
                 </div>
               </div>
 
-              {/* Address & Payment Info & Actions */}
-              <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs text-slate-400 gap-3">
-                <div className="flex flex-wrap items-center gap-3">
-                  <span>📍 {order.address}</span>
-                  <span className="uppercase font-bold text-slate-600 dark:text-slate-300">💳 {order.paymentMethod}</span>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      sound.playClick();
-                      openCourierTracking(order);
-                    }}
-                    className="px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold text-xs flex items-center gap-1.5 transition active:scale-95"
-                  >
-                    <Truck className="w-3.5 h-3.5" /> Kuryer
-                  </button>
-
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      sound.playClick();
-                      openReceipt(order);
-                    }}
-                    className="px-3 py-1.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 font-bold text-xs flex items-center gap-1.5 transition active:scale-95"
-                  >
-                    <FileText className="w-3.5 h-3.5" /> Chek (Invoys)
-                  </button>
-                </div>
+              {/* Address & Payment Info */}
+              <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row justify-between text-xs text-slate-400 gap-2">
+                <span>📍 {order.address}</span>
+                <span className="uppercase">💳 {order.paymentMethod}</span>
               </div>
             </div>
           ))

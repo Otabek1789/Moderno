@@ -7,22 +7,10 @@ import TelegramPreviewModal from './components/common/TelegramPreviewModal';
 import QuickBuyModal from './components/common/QuickBuyModal';
 import LiveChatWidget from './components/common/LiveChatWidget';
 
-// Advanced Olympiad-Winning Features
-import AccessibilityModal from './components/common/AccessibilityModal';
-import VoiceSearchModal from './components/common/VoiceSearchModal';
-import SpotlightSearchModal from './components/common/SpotlightSearchModal';
-import LuckyWheelModal from './components/common/LuckyWheelModal';
-import PaymentGatewayModal from './components/common/PaymentGatewayModal';
-import FiscalReceiptModal from './components/common/FiscalReceiptModal';
-import LiveCourierMapModal from './components/common/LiveCourierMapModal';
-import Product360ViewerModal from './components/common/Product360ViewerModal';
-import PWAInstallBanner from './components/common/PWAInstallBanner';
-
 import TelegramHeader from './components/telegram/TelegramHeader';
 import TelegramBottomNav from './components/telegram/TelegramBottomNav';
 import TelegramNativeControls from './components/telegram/TelegramNativeControls';
 import { useTelegramWebApp } from './hooks/useTelegramWebApp';
-import { useStore } from './context/StoreContext';
 
 import Home from './pages/Home';
 import Shop from './pages/Shop';
@@ -58,39 +46,6 @@ export default function App() {
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
   const isAdminPage = location.pathname.startsWith('/admin');
   const isStandalonePage = isAuthPage || isAdminPage;
-
-  const {
-    receiptModal,
-    closeReceipt,
-    courierModal,
-    closeCourierTracking,
-    paymentModal,
-    closePayment,
-    wheelModal,
-    openWheel,
-    closeWheel,
-    voiceModal,
-    openVoice,
-    closeVoice,
-    spotlightModal,
-    openSpotlight,
-    closeSpotlight,
-    viewer360Modal,
-    close360Viewer,
-    openReceipt
-  } = useStore();
-
-  // Global Ctrl + K / Cmd + K listener for Spotlight Command Palette
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
-        e.preventDefault();
-        openSpotlight();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [openSpotlight]);
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200">
@@ -129,59 +84,6 @@ export default function App() {
       {!isStandalonePage && <TelegramPreviewModal />}
       {!isStandalonePage && <QuickBuyModal />}
       {!isStandalonePage && <LiveChatWidget />}
-      {!isStandalonePage && <PWAInstallBanner />}
-
-      {/* Global Olympiad Modals */}
-      <AccessibilityModal />
-      <VoiceSearchModal isOpen={voiceModal} onClose={closeVoice} />
-      <SpotlightSearchModal
-        isOpen={spotlightModal}
-        onClose={closeSpotlight}
-        onOpenVoice={openVoice}
-        onOpenWheel={openWheel}
-      />
-      <LuckyWheelModal isOpen={wheelModal} onClose={closeWheel} />
-      
-      {paymentModal?.isOpen && (
-        <PaymentGatewayModal
-          isOpen={paymentModal.isOpen}
-          onClose={closePayment}
-          amount={paymentModal.data?.amount}
-          method={paymentModal.data?.method}
-          orderId={paymentModal.data?.orderId}
-          customerPhone={paymentModal.data?.phone}
-          onPaymentSuccess={paymentModal.data?.onSuccess}
-          onOpenReceipt={() => {
-            if (paymentModal.data?.order) {
-              openReceipt(paymentModal.data.order);
-            }
-          }}
-        />
-      )}
-
-      {receiptModal?.isOpen && (
-        <FiscalReceiptModal
-          isOpen={receiptModal.isOpen}
-          onClose={closeReceipt}
-          order={receiptModal.order}
-        />
-      )}
-
-      {courierModal?.isOpen && (
-        <LiveCourierMapModal
-          isOpen={courierModal.isOpen}
-          onClose={closeCourierTracking}
-          order={courierModal.order}
-        />
-      )}
-
-      {viewer360Modal?.isOpen && (
-        <Product360ViewerModal
-          isOpen={viewer360Modal.isOpen}
-          onClose={close360Viewer}
-          product={viewer360Modal.product}
-        />
-      )}
 
       {!isStandalonePage && (isTelegram ? <TelegramBottomNav /> : <MobileNav />)}
       {!isStandalonePage && !isTelegram && <Footer />}
