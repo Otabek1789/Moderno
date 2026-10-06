@@ -50,6 +50,7 @@ import {
   PipelineAndStockAlerts
 } from '../components/admin/AdminCharts';
 import AnimatedCounter from '../components/admin/AnimatedCounter';
+import OrderStatusDropdown from '../components/admin/OrderStatusDropdown';
 
 const adminTranslations = {
   uz: {
@@ -1039,7 +1040,7 @@ Telegram Bot integratsiyasi muvaffaqiyatli ishlamoqda! ✅
               </span>
             </div>
 
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto min-h-[360px] pb-24">
               <table className="w-full text-left text-xs sm:text-sm">
                 <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-400 font-bold uppercase tracking-wider text-[11px] border-b border-slate-100 dark:border-slate-800">
                   <tr>
@@ -1067,24 +1068,10 @@ Telegram Bot integratsiyasi muvaffaqiyatli ishlamoqda! ✅
                         {formatPrice(o.totalAmount)}
                       </td>
                       <td className="p-4">
-                        <select
-                          value={o.status}
-                          onChange={(e) => updateOrderStatus(o.id, e.target.value)}
-                          className={`text-xs font-bold px-3 py-1.5 rounded-xl border focus:outline-none cursor-pointer ${
-                            o.status === 'delivered'
-                              ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30'
-                              : o.status === 'shipping'
-                              ? 'bg-sky-500/10 text-sky-600 border-sky-500/30'
-                              : o.status === 'cancelled'
-                              ? 'bg-rose-500/10 text-rose-500 border-rose-500/30'
-                              : 'bg-amber-500/10 text-amber-600 border-amber-500/30'
-                          }`}
-                        >
-                          <option value="pending">Kutilmoqda</option>
-                          <option value="shipping">Yetkazilmoqda</option>
-                          <option value="delivered">Yakunlandi</option>
-                          <option value="cancelled">Bekor qilindi</option>
-                        </select>
+                        <OrderStatusDropdown
+                          status={o.status}
+                          onChange={(newStatus) => updateOrderStatus(o.id, newStatus)}
+                        />
                       </td>
                       <td className="p-4 text-right">
                         <span className="text-[11px] text-slate-400">{formatDate(o.createdAt)}</span>
@@ -1372,14 +1359,17 @@ Telegram Bot integratsiyasi muvaffaqiyatli ishlamoqda! ✅
                     <label className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1.5">
                       Chegirma Turi
                     </label>
-                    <select
-                      value={newPromo.type}
-                      onChange={(e) => setNewPromo({ ...newPromo, type: e.target.value })}
-                      className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs font-semibold"
-                    >
-                      <option value="percent">Foiz (%)</option>
-                      <option value="fixed">Belgilangan summa (so'm)</option>
-                    </select>
+                    <div className="relative">
+                      <select
+                        value={newPromo.type}
+                        onChange={(e) => setNewPromo({ ...newPromo, type: e.target.value })}
+                        className="w-full appearance-none pl-3.5 pr-8 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+                      >
+                        <option value="percent">Foiz (%)</option>
+                        <option value="fixed">Belgilangan summa (so'm)</option>
+                      </select>
+                      <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    </div>
                   </div>
 
                   <div>
@@ -1493,18 +1483,21 @@ Telegram Bot integratsiyasi muvaffaqiyatli ishlamoqda! ✅
                   <label className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1.5">
                     Kategoriya
                   </label>
-                  <select
-                    value={productForm.category}
-                    onChange={(e) => setProductForm({ ...productForm, category: e.target.value })}
-                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs font-semibold"
-                  >
-                    <option value="smartphones">Smartfonlar</option>
-                    <option value="laptops">Noutbuklar</option>
-                    <option value="audio">Quloqchinlar</option>
-                    <option value="watches">Aqlli soatlar</option>
-                    <option value="appliances">Maishiy texnika</option>
-                    <option value="accessories">Aksessuarlar</option>
-                  </select>
+                    <div className="relative">
+                      <select
+                        value={productForm.category}
+                        onChange={(e) => setProductForm({ ...productForm, category: e.target.value })}
+                        className="w-full appearance-none pl-3.5 pr-8 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+                      >
+                        <option value="smartphones">Smartfonlar</option>
+                        <option value="laptops">Noutbuklar</option>
+                        <option value="audio">Quloqchinlar</option>
+                        <option value="watches">Aqlli soatlar</option>
+                        <option value="appliances">Maishiy texnika</option>
+                        <option value="accessories">Aksessuarlar</option>
+                      </select>
+                      <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    </div>
                 </div>
 
                 <div>
