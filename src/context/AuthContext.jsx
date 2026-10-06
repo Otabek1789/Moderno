@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { auth, googleProvider, signInWithPopup, isFirebaseConfigured } from '../utils/firebase';
 
 const AuthContext = createContext();
 
@@ -227,7 +228,26 @@ export function AuthProvider({ children }) {
   };
 
   const signInWithGoogle = async () => {
-    // Demo Google login defaults to non-admin unless it's otabek1789@gmail.com
+    if (isFirebaseConfigured && auth && googleProvider) {
+      try {
+        const result = await signInWithPopup(auth, googleProvider);
+        const fbUser = result.user;
+        const cleanEmail = (fbUser.email || '').trim().toLowerCase();
+        const displayName = fbUser.displayName || cleanEmail.split('@')[0];
+        const photoURL = fbUser.photoURL || null;
+        return _saveUser(cleanEmail, displayName, photoURL);
+      } catch (err) {
+        console.error("Firebase Google Sign-In Error:", err);
+        if (err.code === 'auth/popup-closed-by-user') {
+          return { success: false, error: "Google oynasi yopildi" };
+        }
+        return { 
+          success: false, 
+          error: err.message || "Google orqali kirishda xatolik yuz berdi" 
+        };
+      }
+    }
+    // Fallback if Firebase is not yet configured
     return _saveUser('otabek1789@gmail.com', 'Otabek (Google)');
   };
 
