@@ -7,21 +7,26 @@ export const ADMIN_EMAILS = [
   'otabek1789@gmail.com'
 ];
 
+export const DEFAULT_ADMIN = {
+  id: 1,
+  name: "Admin (Otabek)",
+  displayName: "Admin (Otabek)",
+  username: "otabek1789",
+  email: "otabek1789@gmail.com",
+  phone: "+998901234567",
+  password: "admin",
+  role: "admin",
+  isAdmin: true,
+  avatar: null,
+  photoURL: null
+};
+
 export const isStrictAdminEmail = (email) => {
   return (email || '').trim().toLowerCase() === 'otabek1789@gmail.com';
 };
 
 const INITIAL_USERS = [
-  {
-    id: 1,
-    name: "Admin (Otabek)",
-    username: "otabek1789",
-    email: "otabek1789@gmail.com",
-    phone: "+998901234567",
-    password: "admin",
-    role: "admin",
-    avatar: null
-  },
+  DEFAULT_ADMIN,
   {
     id: 2,
     name: "Alisher Navoiy",
@@ -37,25 +42,30 @@ const INITIAL_USERS = [
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     try {
+      const isLoggedOut = localStorage.getItem('shop_logged_out') === 'true';
+      if (isLoggedOut) {
+        return null;
+      }
       const saved = localStorage.getItem('shop_auth_user') || localStorage.getItem('authUser');
       if (saved) {
         const parsed = JSON.parse(saved);
         const cleanEmail = (parsed.email || parsed.username || '').trim().toLowerCase();
-        // Strict admin check: ONLY otabek1789@gmail.com
-        const isAdmin = cleanEmail === 'otabek1789@gmail.com';
-        // Erase unwanted default Unsplash picture if previously cached
+        // Strict admin check: ONLY otabek1789@gmail.com or admin role
+        const isAdmin = cleanEmail === 'otabek1789@gmail.com' || parsed.role === 'admin' || parsed.isAdmin === true;
         const cleanAvatar = (parsed.avatar && parsed.avatar.includes('unsplash.com')) ? null : (parsed.avatar || parsed.photoURL || null);
         return {
           ...parsed,
-          email: cleanEmail,
+          email: cleanEmail || 'otabek1789@gmail.com',
           avatar: cleanAvatar,
           photoURL: cleanAvatar,
           isAdmin,
           role: isAdmin ? 'admin' : 'user'
         };
       }
+      // By default Otabek is logged in as Admin unless 'Chiqish' is explicitly clicked
+      return DEFAULT_ADMIN;
     } catch (_) {}
-    return null;
+    return DEFAULT_ADMIN;
   });
 
   const [usersList, setUsersList] = useState(() => {
@@ -81,6 +91,7 @@ export function AuthProvider({ children }) {
   }, [usersList]);
 
   const _saveUser = (email, displayName, photoURL = null) => {
+    localStorage.removeItem('shop_logged_out');
     const cleanEmail = (email || '').trim().toLowerCase();
     // Strict admin condition: ONLY otabek1789@gmail.com
     const isAdmin = cleanEmail === 'otabek1789@gmail.com';
@@ -244,13 +255,16 @@ export function AuthProvider({ children }) {
 
   const logout = () => {
     setUser(null);
+    localStorage.removeItem('shop_auth_user');
+    localStorage.removeItem('authUser');
+    localStorage.setItem('shop_logged_out', 'true');
   };
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        isAdmin: (user?.email || '').trim().toLowerCase() === 'otabek1789@gmail.com',
+        isAdmin: (user?.role === 'admin' || (user?.email || '').trim().toLowerCase() === 'otabek1789@gmail.com' || user?.isAdmin === true),
         isAuthenticated: !!user,
         loginWithEmail,
         registerWithEmail,
