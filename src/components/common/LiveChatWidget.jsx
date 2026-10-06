@@ -14,6 +14,7 @@ import {
 import { useLanguage } from '../../context/LanguageContext';
 import { useStore } from '../../context/StoreContext';
 import { sendTelegramMessage } from '../../utils/telegram';
+import { askGemini } from '../../utils/geminiAI';
 
 export default function LiveChatWidget() {
   const { t } = useLanguage();
@@ -205,9 +206,15 @@ export default function LiveChatWidget() {
       ).catch(() => {});
     }
 
-    // Intelligent AI response answering any user query
-    setTimeout(() => {
-      const reply = generateAIResponse(text);
+    // Intelligent AI response via real Google Gemini API (with smart fallback)
+    try {
+      const geminiReply = await askGemini({
+        message: text.trim(),
+        history: messages,
+        products
+      });
+
+      const reply = geminiReply || generateAIResponse(text);
 
       setMessages((prev) => [
         ...prev,
@@ -218,8 +225,21 @@ export default function LiveChatWidget() {
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         }
       ]);
+    } catch (err) {
+      console.error("AI response error:", err);
+      const fallbackReply = generateAIResponse(text);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 1,
+          sender: 'bot',
+          text: fallbackReply,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }
+      ]);
+    } finally {
       setIsTyping(false);
-    }, 450);
+    }
   };
 
   return (
