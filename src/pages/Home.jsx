@@ -113,7 +113,7 @@ export default function Home() {
                   🔥 Telegram Aksiya
                 </span>
                 <span className="text-[10px] font-mono bg-white text-indigo-900 px-2 py-0.5 rounded-lg font-bold shadow-xs">
-                  KOD: UZBEK2025
+                  KOD: UZBEK2026
                 </span>
               </div>
               <h2 className="text-base sm:text-lg font-extrabold mt-2 leading-snug">

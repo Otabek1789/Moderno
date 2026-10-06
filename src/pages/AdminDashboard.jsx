@@ -879,7 +879,7 @@ Telegram Bot integratsiyasi muvaffaqiyatli ishlamoqda! ✅
                     <AnimatedCounter value={activeCoupons} suffix=" ta faol" />
                   </p>
                   <span className="text-[11px] text-amber-500 font-bold flex items-center gap-0.5 mt-0.5">
-                    UZBEK2025, WELCOME10...
+                    UZBEK2026, WELCOME10...
                   </span>
                 </div>
               </div>

@@ -200,7 +200,7 @@ export default function Navbar() {
           <div className="w-full lg:w-auto lg:absolute lg:left-1/2 lg:-translate-x-1/2 flex items-center justify-center gap-2 sm:gap-2.5 text-center">
             <span className="inline-flex items-center gap-1.5 font-bold text-[11.5px] sm:text-xs">
               <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse shrink-0" />
-              <span>"UZBEK2025" promokodi bilan 15% chegirma!</span>
+              <span>"UZBEK2026" promokodi bilan 15% chegirma!</span>
             </span>
             <a
               href="https://t.me/nekitekibeki_bot?start=website"

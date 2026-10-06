@@ -17,14 +17,14 @@ import { sendTelegramMessage } from '../../utils/telegram';
 
 export default function LiveChatWidget() {
   const { t } = useLanguage();
-  const { telegramSettings } = useStore();
+  const { telegramSettings, products } = useStore();
 
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
       id: 1,
       sender: 'bot',
-      text: "Assalomu alaykum! 👋 Men MODERNO AI yordamchisiman. Sizga tovarlar, narxlar yoki yetkazib berish bo'yicha qanday yordam bera olaman?",
+      text: "Assalomu alaykum! 👋 Men MODERNO AI yordamchisiman.\nSizga do'kondagi har qanday tovar, narxlar, yetkazib berish, kafolat, nasiya (bo'lib to'lash), promokodlar va buyurtmalar bo'yicha yordam bera olaman. Hohlagan savolingizni bering!",
       time: "Hozir"
     }
   ]);
@@ -42,23 +42,144 @@ export default function LiveChatWidget() {
   }, [isOpen, messages]);
 
   const quickFaqs = [
-    {
-      q: "🚚 Yetkazib berish qancha vaqt oladi?",
-      a: "Toshkent shahri bo'ylab buyurtma berilgan kunda 3-6 soatda yetkaziladi. 500 000 so'mdan yuqori xaridlarga yetkazib berish BEPUL! Viloyatlarga esa 24-48 soat ichida yetkazib beramiz."
-    },
-    {
-      q: "💳 Bo'lib to'lash (nasiya) shartlari qanday?",
-      a: "Bizda Uzum Nasiya, Anorbank, Alif va Zoodpay orqali 3, 6, 12 va 24 oyga 0% boshlang'ich to'lov bilan bo'lib to'lash mumkin! Pasportingiz bo'lsa kifoya."
-    },
-    {
-      q: "🛡 Mahsulotlarga rasmiy kafolat bormi?",
-      a: "Albatta! Barcha smartfonlar, noutbuklar va gadjetlarga 12 oylik rasmiy servis kafolati beriladi. 14 kun ichida nuqson aniqlansa, darhol almashtirib beramiz."
-    },
-    {
-      q: "📞 Operator bilan bog'lanish",
-      a: "Jonli operatorimiz bilan Telegram orqali bog'lanishingiz mumkin: @nekitekibeki_bot yoki telefon: +998 (90) 123-45-67."
-    }
+    { q: "🔥 Qanday promokodlar bor?", short: "🔥 Promokodlar" },
+    { q: "🚚 Yetkazib berish shartlari qanday?", short: "🚚 Yetkazish" },
+    { q: "💳 Bo'lib to'lash (nasiya) bormi?", short: "💳 Nasiya" },
+    { q: "🛡 Kafolat va qaytarish qoidalari qanday?", short: "🛡 Kafolat" },
+    { q: "📍 Do'kon manzillari qayerda?", short: "📍 Manzillar" },
+    { q: "📱 MODERNO Ilovasini yuklab olish", short: "📱 Ilova" },
+    { q: "💻 PC Builder qanday ishlaydi?", short: "💻 PC Yig'ish" },
+    { q: "📞 Operator bilan bog'lanish", short: "📞 Bog'lanish" }
   ];
+
+  const generateAIResponse = (rawQuery) => {
+    const query = rawQuery.toLowerCase().trim();
+    const formatUZS = (val) => new Intl.NumberFormat('uz-UZ').format(val) + " so'm";
+
+    // 1. Greetings
+    if (/^(salom|assalom|qalaysiz|qaleysiz|privet|hello|hi|qandaysiz|ahvollar|charchamang)/i.test(query)) {
+      return "Assalomu alaykum! 👋 Men MODERNO AI yordamchisiman.\nSizga saytimizdagi istalgan tovar, narxlar, yetkazib berish, kafolat, bo'lib to'lash (nasiya), promokodlar va buyurtmalar bo'yicha yordam bera olaman.\nQanday savolingiz bor?";
+    }
+
+    // 2. Creator / About Developer / Moderno
+    if (/(kim yaratgan|muallif|dasturchi|avtor|otabek|kim qilgan|kim yasagan|moderno nima|platforma haqida)/i.test(query)) {
+      return "MODERNO — O'zbekistondagi eng ilg'or elektronika va gadjetlar onlayn do'koni. Loyiha dasturchi Otabek tomonidan eng zamonaviy texnologiyalar (React, Vite, PWA ilovasi, Telegram WebApp integratsiyasi) asosida yaratilgan. Maqsadimiz — xaridorlarga tezkor, qulay va 100% ishonchli xizmat ko'rsatish!";
+    }
+
+    // 3. Promocodes & Discounts
+    if (/(promokod|promocode|kupon|chegirma|skidka|aksiya|uzbek2026|uzbek2025|bonus kod)/i.test(query)) {
+      return "Hozirgi kunda quyidagi faol promokodlarimiz mavjud:\n🔥 UZBEK2026 — 15% bayramona maxsus chegirma!\n🎁 WELCOME10 — birinchi xarid uchun 10% chegirma;\n🌿 NAVROZ — 20% bahorgi mega chegirma;\n💰 SUPER50K — 50 000 so'm naqd chegirma.\n\n💡 Savatchaga kirib, promokod maydoniga 'UZBEK2026' deb yozsangiz, darhol 15% chegirma hisoblanadi!";
+    }
+
+    // 4. Delivery / Shipping / Dostavka
+    if (/(yetkaz|dostavka|yetkazib berish|pochta|kuryer|qancha vaqtda|qachon keladi|viloyat|toshkent|necha kunda)/i.test(query)) {
+      return "Yetkazib berish shartlari:\n🚀 Toshkent shahri: Buyurtma qilingan kuni 3-6 soat ichida eshikkacha yetkaziladi!\n📦 Barcha viloyatlar (Samarqand, Buxoro, Farg'ona, Andijon, Namangan va butun O'zbekiston): 24-48 soat ichida kuryer orqali yetkaziladi.\n🎉 500 000 so'mdan yuqori xaridlarga yetkazib berish MUTLAQO BEPUL! 500 mingdan kam bo'lsa: Toshkentda 25 000 so'm, viloyatlarga 40 000 so'm.";
+    }
+
+    // 5. Payment Methods
+    if (/(to'lov|tolov|oplata|qanday to'layman|click|payme|uzum pay|naqd|karta|terminal|plastik)/i.test(query) && !/(nasiya|kredit|bo'lib to'lash|muddatli)/i.test(query)) {
+      return "Bizda quyidagi to'lov turlari mavjud:\n💳 Onlayn to'lov: Click, Payme va Uzum Bank orqali xavfsiz to'lov;\n💵 Naqd pul: Buyurtma yetkazilganda kuryerga mahsulotni ko'rib to'lash;\n🧾 Rasmiy chek: Har bir xarid uchun 12% QQS ko'rsatilgan QR-kodli fiskal chek taqdim etiladi.";
+    }
+
+    // 6. Installments / Nasiya / Kredit
+    if (/(nasiya|bo'lib to'lash|bolib tolash|kredit|muddatli to'lov|rassrochka|anorbank|uzum nasiya|alif|zoodpay)/i.test(query)) {
+      return "Bo'lib to'lash (Nasiya) imkoniyatlari:\n✨ Hamkorlarimiz: Uzum Nasiya, Anorbank, Alif va Zoodpay;\n📅 Muddat: 3, 6, 12 yoki 24 oyga;\n💸 Boshlang'ich to'lov: 0% (oldindan pul talab qilinmaydi);\n📄 Talab qilinadigan hujjat: Faqat pasport yoki ID karta (tasdiqlash onlayn 2 daqiqada amalga oshiriladi).";
+    }
+
+    // 7. Warranty & Returns
+    if (/(kafolat|garantiya|qaytarish|brak|nuqson|vazvrat|almashtir|original|ishlamasa)/i.test(query)) {
+      return "Kafolat va qaytarish qoidalari:\n🛡 100% Rasmiy va Original: Barcha smartfonlar, noutbuklar va gadjetlarga 12 oylik rasmiy servis kafolati beriladi.\n🔄 14 kunlik almashtirish: Agar mahsulotda zavod nuqsoni aniqlansa, uni 14 kun ichida yangisiga bepul almashtirib beramiz yoki pulingizni to'liq qaytarib beramiz.";
+    }
+
+    // 8. Branches, Address & Working Hours
+    if (/(manzil|adres|qayerda joylashgan|filial|lokatsiya|do'kon qayerda|qayerdasiz|ish vaqti|xarita)/i.test(query)) {
+      return "MODERNO do'konlari manzillari:\n📍 Bosh do'kon: Toshkent sh., Amir Temur shoh ko'chasi 108 (Metro Minor yaqinida).\n📍 2-filial: Toshkent sh., Chilonzor 9-mavze, 24-uy.\n📍 Samarqand filiali: Universitet xiyoboni 12.\n📍 Buxoro filiali: B. Naqshband ko'chasi 45.\n⏰ Ish vaqti: Har kuni 09:00 dan 22:00 gacha, dam olish kunlarisiz!\n🗺 Bosh sahifamizning pastida interaktiv xarita mavjud.";
+    }
+
+    // 9. Contacts & Phone
+    if (/(telefon|aloqa|kontakt|nomer|bog'lanish|operator|call center|admin bilan)/i.test(query)) {
+      const botUser = telegramSettings?.botUsername || 'nekitekibeki_bot';
+      return `Biz bilan bog'lanish:\n📞 Telefon: +998 (90) 123-45-67\n🤖 Telegram bot: @${botUser}\nTelegram orqali ham to'g'ridan-to'g'ri buyurtma berishingiz va savollaringizga tezkor javob olishingiz mumkin!`;
+    }
+
+    // 10. Moderno App / PWA Download
+    if (/(ilova|app|yuklab olish|skachat|download|apk|pwa|o'rnatish|ornatish)/i.test(query)) {
+      return "MODERNO ilovasini yuklab olish juda qulay:\n📱 Ekranning pastki chap qismida chiqadigan 'MODERNO Ilovasini yuklab olish' oynasidagi 'Yuklab olish' tugmasini bosing.\n💡 Yoki telefon brauzeringiz menyusini ochib (⋮ yoki Share tugmasi), 'Bosh ekranga qo'shish' (Add to Home Screen) opsiyasini tanlang. Ilova internetsiz ham tezkor ishlaydi!";
+    }
+
+    // 11. PC Builder
+    if (/(pc builder|kompyuter yig'ish|pk yig'ish|kompyuter konstruktor|kompyuter terish)/i.test(query)) {
+      return "💻 Bizda maxsus 'PC Builder' (Kompyuter konstruktori) xizmati bor!\nYuqori menyudagi 'PC Yig'ish' bo'limiga kiring: u yerda protsessor (CPU), videokarta (GPU), RAM va ona plata kabi qismlarni o'zaro mosligini avtomatik tekshirib, o'zingizga mos o'yin yoki ofis kompyuterini yig'ishingiz mumkin!";
+    }
+
+    // 12. Trade-in
+    if (/(trade-in|trade in|eski telefon|almashtirish|eski gadjet)/i.test(query)) {
+      return "🔄 Trade-In xizmati:\nEski telefoningiz yoki noutbukingizni yangisiga qulay narxda almashtirishingiz mumkin! Menyu orqali 'Trade-In' sahifasiga o'ting, qurilmangiz modelini tanlang va onlayn narxini hisoblab oling!";
+    }
+
+    // 13. Mystery Box
+    if (/(mystery box|mistik quti|yutuq|omad|sovg'a quti)/i.test(query)) {
+      return "🎁 'Mystery Box' bo'limida omadingizni sinab ko'ring!\nKichik to'lov evaziga qimmatbaho Apple iPhone, noutbuk yoki zamonaviy quloqchinlarni yutib olishingiz mumkin. Barcha sovg'alar 100% original!";
+    }
+
+    // 14. Moderno Coins & Cashback
+    if (/(coin|tanga|keshbek|cashback|ball|bonus)/i.test(query)) {
+      return "🪙 MODERNO Coins — keshbek tizimi:\n• Ro'yxatdan o'tganingizda 50 000 tanga bonus olasiz;\n• Har bir xaridingizdan foiz hisobida keshbek tangalari hisobingizga tushadi;\n• 1 tanga = 1 so'm. Keyingi xaridlarda chegirma sifatida qo'llashingiz mumkin!";
+    }
+
+    // 15. How to place an order
+    if (/(qanday buyurtma|qanday olaman|zakaz berish|sotib olish|qanday sotib)/i.test(query)) {
+      return "Buyurtma berish tartibi:\n1. O'zingizga yoqqan mahsulot sahifasida 'Savatga qo'shish' yoki '1 klikda xarid' tugmasini bosing;\n2. Savatga o'tib, 'UZBEK2026' promokodini kiriting (-15% chegirma);\n3. Manzil va telefoningizni yozib buyurtmani tasdiqlang;\n4. Xabarnoma Telegram orqali ham yuboriladi va kuryerimiz tezda mahsulotni yetkazadi!";
+    }
+
+    // 16. Admin
+    if (/(admin|admin panel|parol|boshqaruvchi)/i.test(query)) {
+      return "Admin paneliga kirish uchun menyudagi yoki '/admin' havolasidan foydalanishingiz mumkin. Sinov uchun login: 'admin', parol: 'admin'.";
+    }
+
+    // 17. Gratitude
+    if (/(rahmat|raxmat|tashakkur|katta rahmat|spasibo|thank)/i.test(query)) {
+      return "Arzimaydi! 😊 MODERNO bilan xarid qilish yanada yoqimli bo'lsin! Yana savollaringiz bo'lsa, har doim yordamga tayyorman.";
+    }
+
+    // 18. Dynamic Product Search & Inquiries
+    if (products && products.length > 0) {
+      if (/(eng arzon|arzonroq|eng kam)/i.test(query)) {
+        const sorted = [...products].sort((a, b) => a.price - b.price);
+        const top3 = sorted.slice(0, 3);
+        return `Bizdagi eng hamyonbop mahsulotlar:\n` +
+          top3.map((p, i) => `${i + 1}. 🏷️ ${p.name} — ${formatUZS(p.price)} (⭐ ${p.rating})`).join('\n') +
+          `\n\n💡 'UZBEK2026' promokodi bilan yanada 15% arzonroq olasiz!`;
+      }
+
+      if (/(eng qimmat|flagman|top tovar|eng zo'r)/i.test(query)) {
+        const sorted = [...products].sort((a, b) => b.price - a.price);
+        const top3 = sorted.slice(0, 3);
+        return `Bizdagi eng sara flagman mahsulotlar:\n` +
+          top3.map((p, i) => `${i + 1}. ⭐ ${p.name} — ${formatUZS(p.price)} (⭐ ${p.rating})`).join('\n') +
+          `\n\nBarcha flagmanlarga 12 oylik rasmiy kafolat va bepul yetkazib berish taqdim etiladi!`;
+      }
+
+      const words = query.split(/\s+/).filter((w) => w.length >= 3);
+      const matched = products.filter((p) => {
+        const name = (p.name || '').toLowerCase();
+        const cat = (p.category || '').toLowerCase();
+        const desc = (p.description || '').toLowerCase();
+        return words.some((w) => name.includes(w) || cat.includes(w) || desc.includes(w));
+      });
+
+      if (matched.length > 0) {
+        const topMatches = matched.slice(0, 3);
+        return `Siz so'ragan bo'yicha quyidagi mahsulotlarimiz bor:\n\n` +
+          topMatches.map((p, i) => `${i + 1}. 📦 ${p.name}\n   💵 Narxi: ${formatUZS(p.price)}${p.oldPrice ? ` (eski: ${formatUZS(p.oldPrice)})` : ''}\n   ⭐ Reyting: ${p.rating} | Kafolat: 12 oy`).join('\n\n') +
+          `\n\n💡 Savatchaga qo'shib 'UZBEK2026' promokodini ishlatsangiz, 15% chegirmaga ega bo'lasiz!`;
+      }
+    }
+
+    // 19. Intelligent General Fallback
+    const botUser = telegramSettings?.botUsername || 'nekitekibeki_bot';
+    return `Savolingiz uchun tashakkur! 😊\nMODERNO AI yordamchisi sifatida sizga saytimiz bo'yicha har qanday ma'lumotni bera olaman:\n• Tovar narxlari va mavjudligi (masalan: "iPhone narxi qancha?", "noutbuklar bormi?")\n• Yetkazib berish muddatlari va bepul dostavka;\n• "UZBEK2026" (-15%) va boshqa faol promokodlar;\n• Nasiya (bo'lib to'lash) shartlari;\n• Do'kon manzillari, kafolat va xizmatlar.\n\nAgar savolingiz maxsus bo'lsa, operatorimiz bilan bog'lanishingiz mumkin: +998 (90) 123-45-67 yoki Telegram: @${botUser}.`;
+  };
 
   const handleSend = async (textToSend) => {
     const text = textToSend || inputText;
@@ -84,22 +205,9 @@ export default function LiveChatWidget() {
       ).catch(() => {});
     }
 
-    // Check FAQ matches or generate smart answer
+    // Intelligent AI response answering any user query
     setTimeout(() => {
-      const match = quickFaqs.find(
-        (f) =>
-          f.q.toLowerCase().includes(text.toLowerCase()) ||
-          text.toLowerCase().includes('yetkaz') ||
-          (text.toLowerCase().includes('nasiya') && f.q.includes('nasiya')) ||
-          (text.toLowerCase().includes('kafolat') && f.q.includes('kafolat')) ||
-          (text.toLowerCase().includes('operator') && f.q.includes('operator'))
-      );
-
-      let reply = match
-        ? match.a
-        : "Savolingiz uchun rahmat! Operatorimiz xabaringizni qabul qildi va tez orada siz bilan bog'lanadi. Agar shoshilinch bo'lsa, Telegram botimizga (@" +
-          telegramSettings.botUsername +
-          ") yozishingiz mumkin.";
+      const reply = generateAIResponse(text);
 
       setMessages((prev) => [
         ...prev,
@@ -111,7 +219,7 @@ export default function LiveChatWidget() {
         }
       ]);
       setIsTyping(false);
-    }, 800);
+    }, 450);
   };
 
   return (
@@ -181,7 +289,7 @@ export default function LiveChatWidget() {
                       : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-200/80 dark:border-slate-700/60 rounded-bl-none'
                   }`}
                 >
-                  <p className="leading-relaxed">{m.text}</p>
+                  <p className="leading-relaxed whitespace-pre-line">{m.text}</p>
                   <span
                     className={`text-[9px] block text-right ${
                       m.sender === 'user' ? 'text-indigo-200' : 'text-slate-400'
@@ -209,9 +317,9 @@ export default function LiveChatWidget() {
               <button
                 key={idx}
                 onClick={() => handleSend(faq.q)}
-                className="px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-[11px] whitespace-nowrap transition"
+                className="px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-[11px] font-medium whitespace-nowrap transition"
               >
-                {faq.q.split(' ')[0]} {faq.q.split(' ')[1]}
+                {faq.short || faq.q}
               </button>
             ))}
           </div>

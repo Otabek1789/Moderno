@@ -31,7 +31,7 @@ const STORIES = [
   {
     id: 4,
     title: 'Promokod',
-    subtitle: 'UZBEK2025: -15% arzon',
+    subtitle: 'UZBEK2026: -15% arzon',
     icon: Gift,
     color: 'from-purple-500 to-pink-500',
     category: 'promos'

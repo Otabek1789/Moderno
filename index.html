@@ -7,6 +7,11 @@
     <title>MODERNO — Zamonaviy Onlayn Do'kon | Tezkor Yetkazib Berish</title>
     <meta name="description" content="O'zbekistondagi eng zamonaviy onlayn do'kon. Smartfonlar, noutbuklar, quloqchinlar va maishiy texnika kafolat bilan eng arzon narxlarda." />
     
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#4f46e5" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="MODERNO" />
+    
     <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
@@ -26,6 +31,13 @@
   </head>
   <body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen selection:bg-indigo-500 selection:text-white transition-colors duration-200">
     <div id="root"></div>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+      }
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

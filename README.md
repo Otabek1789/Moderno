@@ -71,7 +71,7 @@ Ushbu loyiha barcha zamonaviy talablarga javob beradigan, yuqori sifatli va prof
     - Dinamik savat (miqdor +/-/o'chirish).
     - 500 000 so'mdan oshganda bepul yetkazib berish progress-bari.
     - Ishlaydigan sinov promokodlari:
-      - `UZBEK2025` — **15% chegirma**
+      - `UZBEK2026` — **15% chegirma**
       - `WELCOME10` — **10% chegirma**
       - `NAVROZ` — **20% chegirma**
       - `SUPER50K` — **50 000 so'm chegirma**

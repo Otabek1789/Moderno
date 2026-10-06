@@ -13,7 +13,7 @@ import {
 const StoreContext = createContext();
 
 const INITIAL_PROMOCODES = [
-  { code: 'UZBEK2025', type: 'percent', value: 15, desc: "15% maxsus bayram chegirmasi" },
+  { code: 'UZBEK2026', type: 'percent', value: 15, desc: "15% maxsus chegirma (2026)" },
   { code: 'WELCOME10', type: 'percent', value: 10, desc: "10% birinchi xarid uchun chegirma" },
   { code: 'NAVROZ', type: 'percent', value: 20, desc: "20% bahorgi mega chegirma" },
   { code: 'SUPER50K', type: 'fixed', value: 50000, desc: "50 000 so'm qat'iy chegirma" }
@@ -222,8 +222,24 @@ export function StoreProvider({ children }) {
 
   // 4. Promo codes
   const [promoCodes, setPromoCodes] = useState(() => {
-    const saved = localStorage.getItem('shop_promocodes');
-    return saved ? JSON.parse(saved) : INITIAL_PROMOCODES;
+    try {
+      const saved = localStorage.getItem('shop_promocodes');
+      if (saved) {
+        let parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          // Replace obsolete UZBEK2025 with UZBEK2026 if present
+          let has2026 = parsed.some(p => p.code === 'UZBEK2026');
+          if (!has2026) {
+            parsed = parsed.map(p => p.code === 'UZBEK2025' ? { ...p, code: 'UZBEK2026', desc: "15% maxsus chegirma (2026)" } : p);
+            if (!parsed.some(p => p.code === 'UZBEK2026')) {
+              parsed.unshift({ code: 'UZBEK2026', type: 'percent', value: 15, desc: "15% maxsus chegirma (2026)" });
+            }
+          }
+          return parsed;
+        }
+      }
+    } catch {}
+    return INITIAL_PROMOCODES;
   });
 
   useEffect(() => {

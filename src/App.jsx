@@ -6,6 +6,7 @@ import MobileNav from './components/layout/MobileNav';
 import TelegramPreviewModal from './components/common/TelegramPreviewModal';
 import QuickBuyModal from './components/common/QuickBuyModal';
 import LiveChatWidget from './components/common/LiveChatWidget';
+import PWAInstallPrompt from './components/common/PWAInstallPrompt';
 
 import TelegramHeader from './components/telegram/TelegramHeader';
 import TelegramBottomNav from './components/telegram/TelegramBottomNav';
@@ -84,6 +85,7 @@ export default function App() {
       {!isStandalonePage && <TelegramPreviewModal />}
       {!isStandalonePage && <QuickBuyModal />}
       {!isStandalonePage && <LiveChatWidget />}
+      {!isStandalonePage && !isTelegram && <PWAInstallPrompt />}
 
       {!isStandalonePage && (isTelegram ? <TelegramBottomNav /> : <MobileNav />)}
       {!isStandalonePage && !isTelegram && <Footer />}

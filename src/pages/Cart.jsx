@@ -273,7 +273,7 @@ export default function Cart() {
                     </p>
                   )}
                   <p className="text-[11px] text-slate-400">
-                    💡 Sinab ko'ring: <b className="text-indigo-500">UZBEK2025</b> (-15%) yoki <b className="text-indigo-500">WELCOME10</b> (-10%)
+                    💡 Sinab ko'ring: <b className="text-indigo-500">UZBEK2026</b> (-15%) yoki <b className="text-indigo-500">WELCOME10</b> (-10%)
                   </p>
                 </form>
               )}
