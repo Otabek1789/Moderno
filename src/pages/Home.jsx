@@ -129,18 +129,18 @@ export default function Home() {
         /* Standard Web Desktop Hero Section */
         <section className="relative overflow-hidden pt-6 sm:pt-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-indigo-900 via-slate-900 to-purple-950 text-white shadow-2xl border border-indigo-500/20 p-8 sm:p-14 lg:p-20">
-            {/* Ambient glow */}
-            <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
+            <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-indigo-900 via-slate-900 to-purple-950 text-white shadow-2xl border border-indigo-500/30 p-8 sm:p-14 lg:p-20">
+            {/* Ambient rotating glowing orbs */}
+            <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-indigo-500/25 rounded-full blur-3xl pointer-events-none animate-spin-slow" />
+            <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-96 h-96 bg-purple-500/25 rounded-full blur-3xl pointer-events-none animate-spin-slow-reverse" />
 
             <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
               <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-                <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-white/10 text-indigo-300 border border-white/10 backdrop-blur-md">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-white/10 text-indigo-300 border border-white/20 backdrop-blur-md animate-glow">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-wiggle" />
                   Premium Texnika & Elektronika
                 </span>
-                <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.15]">
+                <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.15] animate-gradient-text">
                   {t('home.heroTitle1')}
                 </h1>
                 <p className="text-base sm:text-lg text-slate-300 max-w-xl mx-auto lg:mx-0 leading-relaxed">
@@ -150,47 +150,48 @@ export default function Home() {
                 <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
                   <Link
                     to="/shop"
-                    className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-base shadow-xl shadow-indigo-600/30 flex items-center justify-center gap-2 transition transform active:scale-95"
+                    className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-black text-base shadow-xl shadow-indigo-600/35 flex items-center justify-center gap-2 transition-all transform active:scale-95 btn-shimmer animate-glow hover:scale-105"
                   >
                     {t('home.shopNow')}
-                    <ArrowRight className="w-5 h-5" />
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </Link>
                   <Link
                     to="/shop?filter=flash"
-                    className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-base border border-white/15 backdrop-blur-md flex items-center justify-center gap-2 transition"
+                    className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-base border border-white/20 backdrop-blur-md flex items-center justify-center gap-2 transition-all btn-shimmer hover:scale-105"
                   >
-                    <Flame className="w-5 h-5 text-amber-400" />
+                    <Flame className="w-5 h-5 text-amber-400 animate-wiggle" />
                     {t('home.viewDeals')}
                   </Link>
                 </div>
 
                 {/* Hero Badges */}
                 <div className="pt-6 grid grid-cols-3 gap-4 border-t border-white/10 text-center lg:text-left">
-                  <div>
-                    <p className="text-2xl font-black text-white">100%</p>
+                  <div className="group cursor-default">
+                    <p className="text-2xl font-black text-white group-hover:text-indigo-300 transition-colors">100%</p>
                     <p className="text-xs text-slate-400">Original tovarlar</p>
                   </div>
-                  <div>
-                    <p className="text-2xl font-black text-white">24 soat</p>
+                  <div className="group cursor-default">
+                    <p className="text-2xl font-black text-white group-hover:text-emerald-300 transition-colors">24 soat</p>
                     <p className="text-xs text-slate-400">Yetkazib berish</p>
                   </div>
-                  <div>
-                    <p className="text-2xl font-black text-white">1 yil</p>
+                  <div className="group cursor-default">
+                    <p className="text-2xl font-black text-white group-hover:text-amber-300 transition-colors">1 yil</p>
                     <p className="text-xs text-slate-400">Rasmiy kafolat</p>
                   </div>
                 </div>
               </div>
 
-              {/* Hero Image Showcase */}
-              <div className="lg:col-span-5 relative flex justify-center">
-                <div className="relative w-full max-w-md aspect-square rounded-3xl overflow-hidden shadow-2xl border border-white/10 group">
+              {/* Hero Image Showcase with 3D Float */}
+              <div className="lg:col-span-5 relative flex justify-center animate-float">
+                <div className="relative w-full max-w-md aspect-square rounded-3xl overflow-hidden shadow-2xl border border-white/20 group hover:border-indigo-400/50 transition-all duration-500 hover:shadow-indigo-500/30">
                   <img
                     src="https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=800&q=80"
                     alt="iPhone 15 Pro Max"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex flex-col justify-end p-6">
-                    <span className="text-xs font-bold text-amber-400 uppercase tracking-widest">
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent flex flex-col justify-end p-6">
+                    <span className="text-xs font-bold text-amber-400 uppercase tracking-widest flex items-center gap-1">
+                      <Sparkles className="w-3.5 h-3.5 animate-spin-slow" />
                       Hafta Yangiligi
                     </span>
                     <h3 className="text-lg font-bold text-white">iPhone 15 Pro Max Natural Titanium</h3>
@@ -217,7 +218,7 @@ export default function Home() {
           </div>
           <Link
             to="/shop"
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:gap-2 transition-all"
+            className="inline-flex items-center gap-1.5 text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:gap-2.5 transition-all"
           >
             {t('home.viewAll')} <ChevronRight className="w-4 h-4" />
           </Link>
@@ -231,14 +232,14 @@ export default function Home() {
               <Link
                 key={cat.id}
                 to={`/shop?category=${cat.id}`}
-                className="group relative p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 text-center flex flex-col items-center"
+                className="group relative p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 card-interactive text-center flex flex-col items-center"
               >
                 <div
-                  className={`w-14 h-14 rounded-2xl bg-gradient-to-tr ${cat.color} text-white flex items-center justify-center shadow-md mb-4 group-hover:scale-110 transition-transform`}
+                  className={`w-14 h-14 rounded-2xl bg-gradient-to-tr ${cat.color} text-white flex items-center justify-center shadow-lg mb-4 group-hover:scale-125 group-hover:rotate-6 transition-all duration-300`}
                 >
                   <Icon className="w-7 h-7" />
                 </div>
-                <h3 className="font-bold text-sm sm:text-base text-slate-800 dark:text-slate-100 group-hover:text-indigo-600 transition">
+                <h3 className="font-bold text-sm sm:text-base text-slate-800 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                   {catTitle}
                 </h3>
                 <p className="text-xs text-slate-400 mt-1">{cat.count}</p>
@@ -325,23 +326,23 @@ export default function Home() {
             <Link
               to="/builder"
               onClick={() => sound.playClick()}
-              className="p-5 rounded-2xl bg-white/5 border border-white/10 hover:border-blue-500/60 hover:bg-white/10 transition group flex flex-col justify-between"
+              className="card-interactive p-5 rounded-2xl bg-white/5 border border-white/10 hover:border-blue-500/60 hover:bg-white/10 transition-all group flex flex-col justify-between"
             >
               <div>
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white mb-3 shadow-lg group-hover:scale-110 transition-transform">
-                  <Gamepad2 className="w-6 h-6" />
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white mb-3 shadow-lg group-hover:scale-115 group-hover:rotate-6 group-hover:shadow-blue-500/40 transition-all duration-300">
+                  <Gamepad2 className="w-6 h-6 animate-float-subtle" />
                 </div>
                 <div className="flex items-center justify-between mb-1">
-                  <h3 className="font-bold text-base text-white">PC Builder Studio</h3>
-                  <span className="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">FPS 🎮</span>
+                  <h3 className="font-bold text-base text-white group-hover:text-blue-300 transition-colors">PC Builder Studio</h3>
+                  <span className="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30 animate-pulse">FPS 🎮</span>
                 </div>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-slate-400 leading-relaxed">
                   Moslik tekshiruvi, vatta hisoblagich va CS2, Cyberpunk FPS simulyatori.
                 </p>
               </div>
               <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs font-bold text-blue-400 group-hover:text-blue-300">
                 <span>Kompyuter yig'ish</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform duration-300" />
               </div>
             </Link>
 
@@ -349,23 +350,23 @@ export default function Home() {
             <Link
               to="/mystery-box"
               onClick={() => sound.playClick()}
-              className="p-5 rounded-2xl bg-white/5 border border-white/10 hover:border-amber-500/60 hover:bg-white/10 transition group flex flex-col justify-between"
+              className="card-interactive p-5 rounded-2xl bg-white/5 border border-white/10 hover:border-amber-500/60 hover:bg-white/10 transition-all group flex flex-col justify-between"
             >
               <div>
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-amber-500 to-rose-500 flex items-center justify-center text-white mb-3 shadow-lg group-hover:scale-110 transition-transform">
-                  <Gift className="w-6 h-6" />
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-amber-500 to-rose-500 flex items-center justify-center text-white mb-3 shadow-lg group-hover:scale-115 group-hover:-rotate-6 group-hover:shadow-amber-500/40 transition-all duration-300">
+                  <Gift className="w-6 h-6 animate-wiggle" />
                 </div>
                 <div className="flex items-center justify-between mb-1">
-                  <h3 className="font-bold text-base text-white">Mystery Box</h3>
-                  <span className="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">Sovrin 🎁</span>
+                  <h3 className="font-bold text-base text-white group-hover:text-amber-300 transition-colors">Mystery Box</h3>
+                  <span className="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 animate-pulse">Sovrin 🎁</span>
                 </div>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-slate-400 leading-relaxed">
                   Kunlik bepul quti, iPhone 15 Pro va PS5 Slim yutib olish imkoniyati.
                 </p>
               </div>
               <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs font-bold text-amber-400 group-hover:text-amber-300">
                 <span>Qutini ochish</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform duration-300" />
               </div>
             </Link>
 
@@ -373,23 +374,23 @@ export default function Home() {
             <Link
               to="/trade-in"
               onClick={() => sound.playClick()}
-              className="p-5 rounded-2xl bg-white/5 border border-white/10 hover:border-emerald-500/60 hover:bg-white/10 transition group flex flex-col justify-between"
+              className="card-interactive p-5 rounded-2xl bg-white/5 border border-white/10 hover:border-emerald-500/60 hover:bg-white/10 transition-all group flex flex-col justify-between"
             >
               <div>
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center text-white mb-3 shadow-lg group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center text-white mb-3 shadow-lg group-hover:scale-115 group-hover:rotate-180 group-hover:shadow-emerald-500/40 transition-all duration-500">
                   <RefreshCw className="w-6 h-6" />
                 </div>
                 <div className="flex items-center justify-between mb-1">
-                  <h3 className="font-bold text-base text-white">Trade-In Almashish</h3>
-                  <span className="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">15 daqiqa 🔄</span>
+                  <h3 className="font-bold text-base text-white group-hover:text-emerald-300 transition-colors">Trade-In Almashish</h3>
+                  <span className="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 animate-pulse">15 daqiqa 🔄</span>
                 </div>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-slate-400 leading-relaxed">
                   Eski telefoningizni onlayn baholang va yangisiga faqat farqini to'lang.
                 </p>
               </div>
               <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs font-bold text-emerald-400 group-hover:text-emerald-300">
                 <span>Narxni hisoblash</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform duration-300" />
               </div>
             </Link>
 
@@ -397,23 +398,23 @@ export default function Home() {
             <Link
               to="/battle"
               onClick={() => sound.playClick()}
-              className="p-5 rounded-2xl bg-white/5 border border-white/10 hover:border-rose-500/60 hover:bg-white/10 transition group flex flex-col justify-between"
+              className="card-interactive p-5 rounded-2xl bg-white/5 border border-white/10 hover:border-rose-500/60 hover:bg-white/10 transition-all group flex flex-col justify-between"
             >
               <div>
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-rose-600 to-purple-600 flex items-center justify-center text-white mb-3 shadow-lg group-hover:scale-110 transition-transform">
-                  <Swords className="w-6 h-6" />
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-rose-600 to-purple-600 flex items-center justify-center text-white mb-3 shadow-lg group-hover:scale-115 group-hover:rotate-12 group-hover:shadow-rose-500/40 transition-all duration-300">
+                  <Swords className="w-6 h-6 animate-pulse" />
                 </div>
                 <div className="flex items-center justify-between mb-1">
-                  <h3 className="font-bold text-base text-white">Gadget Battle</h3>
-                  <span className="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30">VS ⚔️</span>
+                  <h3 className="font-bold text-base text-white group-hover:text-rose-300 transition-colors">Gadget Battle</h3>
+                  <span className="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30 animate-pulse">VS ⚔️</span>
                 </div>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-slate-400 leading-relaxed">
                   Flagmanlar yakkama-yak jangi: Ekran, Kamera, Batareya va Unumdorlik.
                 </p>
               </div>
               <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs font-bold text-rose-400 group-hover:text-rose-300">
                 <span>Jang maydoniga</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform duration-300" />
               </div>
             </Link>
           </div>
@@ -462,11 +463,11 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm text-center">
-            <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto mb-4">
-              <Truck className="w-6 h-6" />
+          <div className="card-interactive p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm text-center group">
+            <div className="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto mb-4 group-hover:scale-120 group-hover:rotate-6 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300 shadow-sm">
+              <Truck className="w-7 h-7" />
             </div>
-            <h3 className="font-bold text-base text-slate-900 dark:text-slate-100 mb-2">
+            <h3 className="font-bold text-base text-slate-900 dark:text-slate-100 mb-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
               {t('home.freeDelivery')}
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
@@ -474,11 +475,11 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm text-center">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto mb-4">
-              <ShieldCheck className="w-6 h-6" />
+          <div className="card-interactive p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm text-center group">
+            <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto mb-4 group-hover:scale-120 group-hover:-rotate-6 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300 shadow-sm">
+              <ShieldCheck className="w-7 h-7" />
             </div>
-            <h3 className="font-bold text-base text-slate-900 dark:text-slate-100 mb-2">
+            <h3 className="font-bold text-base text-slate-900 dark:text-slate-100 mb-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
               {t('home.guarantee')}
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
@@ -486,11 +487,11 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm text-center">
-            <div className="w-12 h-12 rounded-2xl bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center mx-auto mb-4">
-              <Headphones className="w-6 h-6" />
+          <div className="card-interactive p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm text-center group">
+            <div className="w-14 h-14 rounded-2xl bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center mx-auto mb-4 group-hover:scale-120 group-hover:rotate-6 group-hover:bg-sky-600 group-hover:text-white transition-all duration-300 shadow-sm">
+              <Headphones className="w-7 h-7" />
             </div>
-            <h3 className="font-bold text-base text-slate-900 dark:text-slate-100 mb-2">
+            <h3 className="font-bold text-base text-slate-900 dark:text-slate-100 mb-2 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">
               {t('home.support24')}
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
@@ -498,11 +499,11 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm text-center">
-            <div className="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center mx-auto mb-4">
-              <CreditCard className="w-6 h-6" />
+          <div className="card-interactive p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm text-center group">
+            <div className="w-14 h-14 rounded-2xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center mx-auto mb-4 group-hover:scale-120 group-hover:-rotate-6 group-hover:bg-purple-600 group-hover:text-white transition-all duration-300 shadow-sm">
+              <CreditCard className="w-7 h-7" />
             </div>
-            <h3 className="font-bold text-base text-slate-900 dark:text-slate-100 mb-2">
+            <h3 className="font-bold text-base text-slate-900 dark:text-slate-100 mb-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
               {t('home.safePayment')}
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
@@ -524,67 +525,67 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
-            <div className="flex items-center gap-1 text-amber-400 mb-3">
+          <div className="card-interactive p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm group">
+            <div className="flex items-center gap-1 text-amber-400 mb-3 group-hover:scale-105 transition-transform origin-left">
               {[...Array(5)].map((_, i) => (
                 <Star key={i} className="w-4 h-4 fill-amber-400" />
               ))}
             </div>
-            <p className="text-sm text-slate-600 dark:text-slate-300 italic mb-4">
+            <p className="text-sm text-slate-600 dark:text-slate-300 italic mb-4 leading-relaxed">
               "iPhone 15 Pro Max buyurtma berdim. Toshkent ichida atigi yarim soatda bepul yetkazib berishdi. Hujjatlari, kafolati joyida. Rahmat!"
             </p>
             <div className="flex items-center gap-3">
               <img
                 src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80"
                 alt=""
-                className="w-10 h-10 rounded-full object-cover"
+                className="w-11 h-11 rounded-full object-cover ring-2 ring-indigo-500/30 group-hover:ring-indigo-500 transition-all"
               />
               <div>
-                <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">Bobur Mirzayev</h4>
+                <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Bobur Mirzayev</h4>
                 <p className="text-xs text-slate-400">Toshkent sh.</p>
               </div>
             </div>
           </div>
 
-          <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
-            <div className="flex items-center gap-1 text-amber-400 mb-3">
+          <div className="card-interactive p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm group">
+            <div className="flex items-center gap-1 text-amber-400 mb-3 group-hover:scale-105 transition-transform origin-left">
               {[...Array(5)].map((_, i) => (
                 <Star key={i} className="w-4 h-4 fill-amber-400" />
               ))}
             </div>
-            <p className="text-sm text-slate-600 dark:text-slate-300 italic mb-4">
+            <p className="text-sm text-slate-600 dark:text-slate-300 italic mb-4 leading-relaxed">
               "MacBook Pro M3 Max oldim. Telegram orqali operatorlar juda tez yordam berishdi, promokod orqali yana 15% chegirma oldim!"
             </p>
             <div className="flex items-center gap-3">
               <img
                 src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80"
                 alt=""
-                className="w-10 h-10 rounded-full object-cover"
+                className="w-11 h-11 rounded-full object-cover ring-2 ring-indigo-500/30 group-hover:ring-indigo-500 transition-all"
               />
               <div>
-                <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">Zarina Karimova</h4>
+                <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Zarina Karimova</h4>
                 <p className="text-xs text-slate-400">Samarqand sh.</p>
               </div>
             </div>
           </div>
 
-          <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
-            <div className="flex items-center gap-1 text-amber-400 mb-3">
+          <div className="card-interactive p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm group">
+            <div className="flex items-center gap-1 text-amber-400 mb-3 group-hover:scale-105 transition-transform origin-left">
               {[...Array(5)].map((_, i) => (
                 <Star key={i} className="w-4 h-4 fill-amber-400" />
               ))}
             </div>
-            <p className="text-sm text-slate-600 dark:text-slate-300 italic mb-4">
+            <p className="text-sm text-slate-600 dark:text-slate-300 italic mb-4 leading-relaxed">
               "Sony quloqchinlari ajoyib! Tovarning sifati va yetkazib berish xizmati 10/10. Doim shu do'kondan foydalanaman."
             </p>
             <div className="flex items-center gap-3">
               <img
                 src="https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=100&q=80"
                 alt=""
-                className="w-10 h-10 rounded-full object-cover"
+                className="w-11 h-11 rounded-full object-cover ring-2 ring-indigo-500/30 group-hover:ring-indigo-500 transition-all"
               />
               <div>
-                <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">Jamshid Aliyev</h4>
+                <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Jamshid Aliyev</h4>
                 <p className="text-xs text-slate-400">Buxoro sh.</p>
               </div>
             </div>

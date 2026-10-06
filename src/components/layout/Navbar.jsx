@@ -199,14 +199,16 @@ export default function Navbar() {
           {/* EXACT GEOMETRIC CENTER ANNOUNCEMENT */}
           <div className="w-full lg:w-auto lg:absolute lg:left-1/2 lg:-translate-x-1/2 flex items-center justify-center gap-2 sm:gap-2.5 text-center">
             <span className="inline-flex items-center gap-1.5 font-bold text-[11.5px] sm:text-xs">
-              <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse shrink-0" />
-              <span>"UZBEK2026" promokodi bilan 15% chegirma!</span>
+              <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-spin shrink-0" />
+              <span className="bg-gradient-to-r from-amber-200 via-white to-pink-200 bg-clip-text text-transparent font-extrabold animate-pulse">
+                "UZBEK2026" promokodi bilan 15% chegirma!
+              </span>
             </span>
             <a
               href="https://t.me/nekitekibeki_bot?start=website"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/20 hover:bg-white text-white hover:text-indigo-700 text-[11px] font-bold transition shadow-xs whitespace-nowrap active:scale-95"
+              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/20 hover:bg-white text-white hover:text-indigo-700 text-[11px] font-bold transition shadow-xs whitespace-nowrap active:scale-95 animate-glow-amber"
             >
               <Send className="w-3 h-3" />
               <span>Botni Ochish</span>
@@ -220,7 +222,7 @@ export default function Navbar() {
               href="https://t.me/nekitekibeki_bot?start=website"
               target="_blank"
               rel="noopener noreferrer"
-              className="underline font-bold hover:text-amber-200"
+              className="underline font-bold hover:text-amber-200 transition-colors"
             >
               @nekitekibeki_bot
             </a>
@@ -237,20 +239,20 @@ export default function Navbar() {
           <div className="flex items-center gap-3 shrink-0">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl"
+              className="lg:hidden p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition"
             >
-              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isMobileMenuOpen ? <X className="w-6 h-6 animate-scaleUp" /> : <Menu className="w-6 h-6" />}
             </button>
 
             <Link to="/" className="flex items-center gap-2.5 group">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30 group-hover:scale-105 transition-transform">
-                <ShoppingBag className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                <ShoppingBag className="w-5 h-5 animate-float-subtle" />
               </div>
               <div className="flex flex-col">
-                <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                <span className="text-xl font-extrabold tracking-tight animate-gradient-text">
                   MODERNO
                 </span>
-                <span className="text-[10px] font-semibold text-slate-400 tracking-widest uppercase -mt-1">
+                <span className="text-[10px] font-semibold text-slate-400 tracking-widest uppercase -mt-1 group-hover:text-indigo-500 transition-colors">
                   Online Store
                 </span>
               </div>
@@ -515,12 +517,12 @@ export default function Navbar() {
             <Link
               to="/compare"
               aria-label={t('nav.compare')}
-              className="relative p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition"
+              className="relative p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition hover:scale-110 active:scale-95"
               title="Taqqoslash"
             >
-              <Scale className="w-5 h-5" />
+              <Scale className="w-5 h-5 hover:rotate-12 transition-transform" />
               {compareCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-indigo-600 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center animate-scaleUp shadow-xs">
+                <span className="absolute -top-1 -right-1 bg-indigo-600 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center animate-pulse shadow-xs">
                   {compareCount}
                 </span>
               )}
@@ -530,11 +532,12 @@ export default function Navbar() {
             <Link
               to="/wishlist"
               aria-label={t('nav.wishlist')}
-              className="relative p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition"
+              className="relative p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition hover:scale-110 active:scale-95 group"
+              title="Sevimlilar"
             >
-              <Heart className="w-5 h-5" />
+              <Heart className="w-5 h-5 group-hover:text-rose-500 group-hover:scale-110 transition-all" />
               {wishlistCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center animate-scaleUp shadow-sm">
+                <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center animate-heartbeat shadow-md shadow-rose-500/40">
                   {wishlistCount}
                 </span>
               )}
@@ -544,12 +547,14 @@ export default function Navbar() {
             <Link
               to="/cart"
               aria-label={t('nav.cart')}
-              className="relative p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition"
+              className="relative p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition hover:scale-110 active:scale-95 group"
+              title="Savatcha"
             >
-              <ShoppingBag className="w-5 h-5" />
+              <ShoppingBag className="w-5 h-5 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 group-hover:-rotate-12 transition-all" />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-indigo-600 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center animate-scaleUp shadow-md shadow-indigo-600/30">
-                  {cartCount}
+                <span className="absolute -top-1 -right-1 bg-indigo-600 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-md shadow-indigo-600/40">
+                  <span className="absolute inset-0 rounded-full bg-indigo-400 animate-ping opacity-75 pointer-events-none" />
+                  <span className="relative z-10">{cartCount}</span>
                 </span>
               )}
             </Link>

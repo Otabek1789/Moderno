@@ -150,7 +150,7 @@ export default function Shop() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-slate-100">
-            {t('shop.catalogTitle')}
+            <span className="animate-gradient-text">{t('shop.catalogTitle')}</span>
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
             {filteredProducts.length} {t('shop.showingProducts')}

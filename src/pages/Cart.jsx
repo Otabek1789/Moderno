@@ -52,7 +52,7 @@ export default function Cart() {
   if (cart.length === 0) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-20 text-center">
-        <div className="w-24 h-24 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto mb-6 shadow-inner">
+        <div className="w-24 h-24 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto mb-6 shadow-xl animate-float animate-glow">
           <ShoppingBag className="w-12 h-12" />
         </div>
         <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 mb-3">
@@ -63,9 +63,9 @@ export default function Cart() {
         </p>
         <Link
           to="/shop"
-          className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm sm:text-base shadow-xl shadow-indigo-600/30 transition transform active:scale-95"
+          className="btn-shimmer inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm sm:text-base shadow-xl shadow-indigo-600/30 transition transform hover:scale-105 active:scale-95 animate-glow"
         >
-          {t('cart.exploreShop')} <ArrowRight className="w-5 h-5" />
+          {t('cart.exploreShop')} <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
         </Link>
       </div>
     );
@@ -319,10 +319,10 @@ export default function Cart() {
             {/* Proceed to Checkout button */}
             <Link
               to="/checkout"
-              className="w-full py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-xl shadow-indigo-600/30 transition transform active:scale-95"
+              className="btn-shimmer w-full py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-xl shadow-indigo-600/30 transition-all transform hover:scale-[1.02] active:scale-95 animate-glow"
             >
               <span>{t('cart.checkoutBtn')}</span>
-              <ArrowRight className="w-5 h-5" />
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
             </Link>
           </div>
         </div>

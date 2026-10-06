@@ -124,18 +124,18 @@ export default function ProductDetail() {
         
         {/* Left: Gallery (5 cols) */}
         <div className="lg:col-span-6 space-y-4">
-          <div className="relative aspect-square w-full rounded-3xl overflow-hidden bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-md">
+          <div className="relative aspect-square w-full rounded-3xl overflow-hidden bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-md group">
             <img
               src={selectedImage || product.image}
               alt={product.name}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-108"
               onError={(e) => {
                 e.currentTarget.onerror = null;
                 e.currentTarget.src = "https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format&fit=crop&w=800&q=80";
               }}
             />
             {product.discountPrice && (
-              <span className="absolute top-4 left-4 px-3 py-1 text-xs font-extrabold uppercase tracking-wider text-rose-700 bg-rose-100 dark:bg-rose-500/20 dark:text-rose-300 rounded-xl shadow-sm">
+              <span className="absolute top-4 left-4 px-3 py-1 text-xs font-extrabold uppercase tracking-wider text-rose-700 bg-rose-100 dark:bg-rose-500/20 dark:text-rose-300 rounded-xl shadow-sm animate-pulse">
                 -{Math.round(((product.price - product.discountPrice) / product.price) * 100)}% Chegirma
               </span>
             )}
@@ -148,10 +148,10 @@ export default function ProductDetail() {
                 <button
                   key={idx}
                   onClick={() => setSelectedImage(img)}
-                  className={`w-20 h-20 rounded-2xl overflow-hidden border-2 transition shrink-0 ${
+                  className={`w-20 h-20 rounded-2xl overflow-hidden border-2 transition-all duration-200 shrink-0 ${
                     (selectedImage || product.image) === img
                       ? 'border-indigo-600 shadow-lg scale-105'
-                      : 'border-transparent opacity-60 hover:opacity-100'
+                      : 'border-transparent opacity-60 hover:opacity-100 hover:scale-102'
                   }`}
                 >
                   <img
@@ -194,8 +194,8 @@ export default function ProductDetail() {
             </h1>
 
             {/* Price Box */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800 mb-6 flex items-baseline gap-4">
-              <span className="text-3xl sm:text-4xl font-black text-indigo-600 dark:text-indigo-400">
+            <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800 mb-6 flex items-baseline gap-4 shadow-xs">
+              <span className="text-3xl sm:text-4xl font-black text-indigo-600 dark:text-indigo-400 animate-gradient-text">
                 {formatPrice(product.discountPrice || product.price)}
               </span>
               {product.discountPrice && (
@@ -228,16 +228,16 @@ export default function ProductDetail() {
                 <div className="flex items-center border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-800">
                   <button
                     onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                    className="px-3.5 py-2 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 font-bold"
+                    className="px-3.5 py-2 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 font-bold active:scale-95 transition"
                   >
                     -
                   </button>
-                  <span className="px-4 py-2 text-sm font-semibold text-slate-800 dark:text-slate-100 min-w-10 text-center">
+                  <span className="px-4 py-2 text-sm font-semibold text-slate-800 dark:text-slate-100 min-w-10 text-center font-mono">
                     {quantity}
                   </span>
                   <button
                     onClick={() => setQuantity((q) => Math.min(product.stock, q + 1))}
-                    className="px-3.5 py-2 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 font-bold"
+                    className="px-3.5 py-2 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 font-bold active:scale-95 transition"
                   >
                     +
                   </button>
@@ -252,12 +252,12 @@ export default function ProductDetail() {
                   <button
                     onClick={handleAddToCart}
                     disabled={product.stock === 0}
-                    className={`w-full py-3.5 px-5 rounded-2xl font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 transition-all shadow-xl ${
+                    className={`btn-shimmer w-full py-3.5 px-5 rounded-2xl font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 transition-all shadow-xl hover:scale-[1.02] active:scale-95 ${
                       product.stock === 0
                         ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
                         : added
                         ? 'bg-emerald-600 text-white shadow-emerald-600/30'
-                        : 'bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white shadow-indigo-600/25'
+                        : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-600/25'
                     }`}
                   >
                     {added ? (
@@ -277,9 +277,9 @@ export default function ProductDetail() {
                   <button
                     onClick={() => openQuickBuy(product)}
                     disabled={product.stock === 0}
-                    className="w-full py-3.5 px-5 rounded-2xl font-bold text-sm sm:text-base bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 active:scale-95 transition disabled:opacity-50"
+                    className="btn-shimmer w-full py-3.5 px-5 rounded-2xl font-bold text-sm sm:text-base bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 hover:scale-[1.02] active:scale-95 transition disabled:opacity-50"
                   >
-                    <Zap className="w-5 h-5 fill-white shrink-0" />
+                    <Zap className="w-5 h-5 fill-white shrink-0 animate-pulse" />
                     <span className="whitespace-nowrap">1-Klikda xarid</span>
                   </button>
                 </div>

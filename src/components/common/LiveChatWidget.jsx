@@ -228,15 +228,15 @@ export default function LiveChatWidget() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="relative w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-600 text-white flex items-center justify-center shadow-xl shadow-indigo-600/30 hover:scale-105 active:scale-95 transition-all group"
+          className="relative w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-600 text-white flex items-center justify-center shadow-2xl shadow-indigo-600/40 hover:scale-110 active:scale-95 transition-all group animate-float animate-glow"
           title="Onlayn yordamchi"
         >
-          <MessageCircle className="w-7 h-7 group-hover:scale-110 transition-transform" />
+          <MessageCircle className="w-7 h-7 group-hover:scale-115 group-hover:rotate-12 transition-transform duration-300" />
           {hasUnread && (
             <span className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full animate-ping" />
           )}
           {hasUnread && (
-            <span className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full" />
+            <span className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full animate-heartbeat" />
           )}
         </button>
       )}

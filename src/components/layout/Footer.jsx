@@ -17,12 +17,12 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Top Newsletter & Telegram Section */}
-        <div className="bg-gradient-to-r from-indigo-900/60 via-purple-900/60 to-slate-900 border border-indigo-500/20 rounded-3xl p-6 sm:p-10 mb-16 shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="card-interactive bg-gradient-to-r from-indigo-900/60 via-purple-900/60 to-slate-900 border border-indigo-500/20 rounded-3xl p-6 sm:p-10 mb-16 shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none animate-spin-slow" />
           <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-6">
             <div className="max-w-xl text-center lg:text-left">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-400 mb-3">
-                <Sparkles className="w-3.5 h-3.5" /> Telegram Botimizga ulaning
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-400 mb-3 animate-pulse border border-indigo-500/30">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-spin" /> Telegram Botimizga ulaning
               </span>
               <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">
                 Buyurtmalaringiz holatini Telegram orqali real vaqtda kuzating
@@ -37,9 +37,9 @@ export default function Footer() {
                 href="https://t.me/nekitekibeki_bot?start=website"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-sky-500 hover:bg-sky-400 text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-sky-500/25 transition active:scale-95"
+                className="btn-shimmer w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-sky-500 hover:bg-sky-400 text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-sky-500/25 hover:scale-105 transition-all active:scale-95 animate-glow"
               >
-                <Send className="w-4 h-4" /> Telegram Botni Ochish (@nekitekibeki_bot)
+                <Send className="w-4 h-4 group-hover:translate-x-1 transition-transform" /> Telegram Botni Ochish (@nekitekibeki_bot)
               </a>
             </div>
           </div>
@@ -51,10 +51,10 @@ export default function Footer() {
           {/* Col 1: Brand */}
           <div>
             <Link to="/" className="flex items-center gap-2.5 mb-4 group">
-              <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30">
-                <ShoppingBag className="w-4 h-4" />
+              <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                <ShoppingBag className="w-4 h-4 animate-float-subtle" />
               </div>
-              <span className="text-xl font-extrabold tracking-tight text-white">
+              <span className="text-xl font-extrabold tracking-tight text-white group-hover:text-indigo-400 transition-colors">
                 MODERNO
               </span>
             </Link>
@@ -168,12 +168,12 @@ export default function Footer() {
           
           {/* Payment Badges */}
           <div className="flex items-center gap-2 font-mono text-[10px] font-bold">
-            <span className="px-2 py-1 rounded bg-slate-800 text-slate-300">CLICK</span>
-            <span className="px-2 py-1 rounded bg-slate-800 text-emerald-400">PAYME</span>
-            <span className="px-2 py-1 rounded bg-slate-800 text-blue-400">UZCARD</span>
-            <span className="px-2 py-1 rounded bg-slate-800 text-amber-400">HUMO</span>
-            <span className="px-2 py-1 rounded bg-slate-800 text-slate-300">VISA</span>
-            <span className="px-2 py-1 rounded bg-slate-800 text-rose-400">MC</span>
+            <span className="px-2 py-1 rounded bg-slate-800 text-slate-300 hover:scale-110 hover:bg-slate-700 transition-all cursor-default">CLICK</span>
+            <span className="px-2 py-1 rounded bg-slate-800 text-emerald-400 hover:scale-110 hover:bg-slate-700 transition-all cursor-default">PAYME</span>
+            <span className="px-2 py-1 rounded bg-slate-800 text-blue-400 hover:scale-110 hover:bg-slate-700 transition-all cursor-default">UZCARD</span>
+            <span className="px-2 py-1 rounded bg-slate-800 text-amber-400 hover:scale-110 hover:bg-slate-700 transition-all cursor-default">HUMO</span>
+            <span className="px-2 py-1 rounded bg-slate-800 text-slate-300 hover:scale-110 hover:bg-slate-700 transition-all cursor-default">VISA</span>
+            <span className="px-2 py-1 rounded bg-slate-800 text-rose-400 hover:scale-110 hover:bg-slate-700 transition-all cursor-default">MC</span>
           </div>
         </div>
 
