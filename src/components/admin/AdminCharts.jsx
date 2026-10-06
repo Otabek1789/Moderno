@@ -407,28 +407,51 @@ export function PipelineAndStockAlerts({ orders = [], products = [] }) {
         </div>
 
         {/* Legend with animated counters */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs pt-2">
-          <div className="p-2.5 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400">
-            <span className="block font-bold">Yakunlandi</span>
-            <span className="text-base font-black">
+        <div className="grid grid-cols-2 xl:grid-cols-4 gap-2.5 sm:gap-3 text-xs pt-2">
+          <div className="min-w-0 p-3 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200/50 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-400 flex flex-col justify-between">
+            <div className="flex items-center gap-1.5 min-w-0 mb-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+              <span className="font-bold text-[11px] sm:text-xs text-emerald-800 dark:text-emerald-300 truncate" title="Yakunlandi">
+                Yakunlandi
+              </span>
+            </div>
+            <span className="text-base sm:text-lg font-black text-emerald-600 dark:text-emerald-400 truncate block">
               <AnimatedCounter value={delivered} suffix=" ta" />
             </span>
           </div>
-          <div className="p-2.5 rounded-xl bg-sky-50/60 dark:bg-sky-950/30 text-sky-700 dark:text-sky-400">
-            <span className="block font-bold">Yetkazilmoqda</span>
-            <span className="text-base font-black">
+
+          <div className="min-w-0 p-3 rounded-2xl bg-sky-50/70 dark:bg-sky-950/40 border border-sky-200/50 dark:border-sky-800/40 text-sky-700 dark:text-sky-400 flex flex-col justify-between">
+            <div className="flex items-center gap-1.5 min-w-0 mb-1.5">
+              <span className="w-2 h-2 rounded-full bg-sky-500 shrink-0" />
+              <span className="font-bold text-[11px] sm:text-xs text-sky-800 dark:text-sky-300 truncate" title="Yetkazilmoqda">
+                Yetkazilmoqda
+              </span>
+            </div>
+            <span className="text-base sm:text-lg font-black text-sky-600 dark:text-sky-400 truncate block">
               <AnimatedCounter value={shipping} suffix=" ta" />
             </span>
           </div>
-          <div className="p-2.5 rounded-xl bg-amber-50/60 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400">
-            <span className="block font-bold">Kutilmoqda</span>
-            <span className="text-base font-black">
+
+          <div className="min-w-0 p-3 rounded-2xl bg-amber-50/70 dark:bg-amber-950/40 border border-amber-200/50 dark:border-amber-800/40 text-amber-700 dark:text-amber-400 flex flex-col justify-between">
+            <div className="flex items-center gap-1.5 min-w-0 mb-1.5">
+              <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
+              <span className="font-bold text-[11px] sm:text-xs text-amber-800 dark:text-amber-300 truncate" title="Kutilmoqda">
+                Kutilmoqda
+              </span>
+            </div>
+            <span className="text-base sm:text-lg font-black text-amber-600 dark:text-amber-400 truncate block">
               <AnimatedCounter value={pending} suffix=" ta" />
             </span>
           </div>
-          <div className="p-2.5 rounded-xl bg-rose-50/60 dark:bg-rose-950/30 text-rose-700 dark:text-rose-400">
-            <span className="block font-bold">Bekor</span>
-            <span className="text-base font-black">
+
+          <div className="min-w-0 p-3 rounded-2xl bg-rose-50/70 dark:bg-rose-950/40 border border-rose-200/50 dark:border-rose-800/40 text-rose-700 dark:text-rose-400 flex flex-col justify-between">
+            <div className="flex items-center gap-1.5 min-w-0 mb-1.5">
+              <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0" />
+              <span className="font-bold text-[11px] sm:text-xs text-rose-800 dark:text-rose-300 truncate" title="Bekor qilindi">
+                Bekor
+              </span>
+            </div>
+            <span className="text-base sm:text-lg font-black text-rose-600 dark:text-rose-400 truncate block">
               <AnimatedCounter value={cancelled} suffix=" ta" />
             </span>
           </div>

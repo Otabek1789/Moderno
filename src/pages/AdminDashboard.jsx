@@ -1214,12 +1214,10 @@ Telegram Bot integratsiyasi muvaffaqiyatli ishlamoqda! ✅
           <div className="space-y-8 animate-fadeIn">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <RevenueChart totalRevenue={totalRevenue} />
-              <WeeklyBarsChart />
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <CategoryShareChart />
-              <PipelineAndStockAlerts orders={orders} products={products} />
             </div>
+            <WeeklyBarsChart />
+            <PipelineAndStockAlerts orders={orders} products={products} />
           </div>
         )}
 
